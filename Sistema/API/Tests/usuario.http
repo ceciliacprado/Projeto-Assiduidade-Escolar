@@ -1,7 +1,17 @@
 @url_base = http://localhost:5268/api/aluno
 
+
+### Gerar token do aluno
+POST {{url_base}}/gerar-token
+Content-Type: application/json
+
+{
+    "email": "joao@email.com",
+    "senha": "123456"
+}
+
 ### Cadastrar aluno
-POST {{url_base}}
+POST {{url_base}}/cadastrar
 Content-Type: application/json
 
 {
