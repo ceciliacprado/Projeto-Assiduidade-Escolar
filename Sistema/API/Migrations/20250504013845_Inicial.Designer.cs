@@ -45,7 +45,7 @@ namespace API.Migrations
                     b.ToTable("Produtos");
                 });
 
-            modelBuilder.Entity("API.Models.Usuario", b =>
+            modelBuilder.Entity("API.Models.Aluno", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -69,7 +69,7 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Usuarios");
+                    b.ToTable("Alunos");
                 });
 #pragma warning restore 612, 618
         }
