@@ -1,0 +1,45 @@
+# Build
+bin/
+obj/
+out/
+*.exe
+*.dll
+
+# User configs
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# ASP.NET & Entity Framework
+*.db
+*.db-shm
+*.db-wal
+migrations/
+
+# Test
+TestResults/
+*.coverage
+*.coveragexml
+*.trx
+
+# Logs
+*.log
+
+# Publish
+publish/
+dist/
+
+# Secrets & config locais
+appsettings.Development.json
+secrets.json
+
+# Sistema
+.DS_Store
+Thumbs.db
