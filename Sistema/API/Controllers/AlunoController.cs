@@ -2,6 +2,7 @@ using API.Data;
 using API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using API.Repositories;
 
 namespace API.Controllers;
 
@@ -16,7 +17,7 @@ public class AlunoController : ControllerBase
     }
 
     [HttpPost("cadastrar")]
-    [Authorize(Roles = "administrador")]
+    [Authorize(Roles = "admin")]
     public IActionResult Cadastrar([FromBody] Aluno aluno)
     {
         _alunoRepository.Cadastrar(aluno);
@@ -26,7 +27,7 @@ public class AlunoController : ControllerBase
     [HttpGet("listar")]
     [Authorize]
     public IActionResult Listar()
-    {        
+    {
         return Ok(_alunoRepository.Listar());
     }
 }

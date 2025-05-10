@@ -1,7 +1,8 @@
 using System;
 using API.Models;
+using API.Data;
 
-namespace API.Data;
+namespace API.Repositories;
 
 public class AlunoRepository : IAlunoRepository
 {

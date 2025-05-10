@@ -1,78 +1,80 @@
-// using System.IdentityModel.Tokens.Jwt;
-// using System.Security.Claims;
-// using System.Text;
-// using API.Data;
-// using API.Models;
-// using Microsoft.AspNetCore.Mvc;
-// using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using API.Data;
+using API.Repositories;
+using API.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
-// namespace API.Controllers;
 
-// [ApiController]
-// [Route("api/usuario")]
-// public class UsuarioController : ControllerBase
-// {
-//     private readonly IUsuarioRepository _usuarioRepository;
-//     private readonly IConfiguration _configuration;
-//     public UsuarioController(IUsuarioRepository usuarioRepository,
-//         IConfiguration configuration)
-//     {
-//         _usuarioRepository = usuarioRepository;
-//         _configuration = configuration;
-//     }
+namespace API.Controllers;
 
-//     [HttpPost("cadastrar")]
-//     public IActionResult Cadastrar([FromBody] Usuario usuario)
-//     {
-//         _usuarioRepository.Cadastrar(usuario);
-//         return Created("", usuario);
-//     }
+[ApiController]
+[Route("api/usuario")]
+public class UsuarioController : ControllerBase
+{
+    private readonly IUsuarioRepository _usuarioRepository;
+    private readonly IConfiguration _configuration;
+    public UsuarioController(IUsuarioRepository usuarioRepository,
+        IConfiguration configuration)
+    {
+        _usuarioRepository = usuarioRepository;
+        _configuration = configuration;
+    }
 
-//     [HttpPost("login")]
-//     public IActionResult Login([FromBody] Usuario usuario)
-//     {
-//         Usuario? usuarioExistente = _usuarioRepository
-//             .BuscarUsuarioPorEmailSenha(usuario.Email, usuario.Senha);
+    [HttpPost("cadastrar")]
+    public IActionResult Cadastrar([FromBody] Usuario usuario)
+    {
+        _usuarioRepository.Cadastrar(usuario);
+        return Created("", usuario);
+    }
 
-//         if (usuarioExistente == null)
-//         {
-//             return Unauthorized(new { mensagem = "Usuário ou senha inválidos!" });
-//         }
+    [HttpPost("login")]
+    public IActionResult Login([FromBody] Usuario usuario)
+    {
+        Usuario? usuarioExistente = _usuarioRepository
+            .BuscarUsuarioPorEmailSenha(usuario.Email, usuario.Senha);
 
-//         string token = GerarToken(usuarioExistente);
-//         return Ok(token);
-//     }
+        if (usuarioExistente == null)
+        {
+            return Unauthorized(new { mensagem = "Usuário ou senha inválidos!" });
+        }
 
-//     [HttpGet("listar")]
-//     public IActionResult Listar()
-//     {
-//         return Ok(_usuarioRepository.Listar());
-//     }
+        string token = GerarToken(usuarioExistente);
+        return Ok(token);
+    }
 
-//     [ApiExplorerSettings(IgnoreApi = true)]
-//     public string GerarToken(Usuario usuario)
-//     {
-//         var claims = new[]
-//         {
-//             new Claim(ClaimTypes.Name, usuario.Email),
-//             new Claim(ClaimTypes.Role, usuario.Permissao.ToString())
-//         };
+    [HttpGet("listar")]
+    public IActionResult Listar()
+    {
+        return Ok(_usuarioRepository.Listar());
+    }
 
-//         var chave = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!);
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public string GerarToken(Usuario usuario)
+    {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.Name, usuario.Email),
+            new Claim(ClaimTypes.Role, usuario.Role.ToString())
+        };
+
+        var chave = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!);
         
-//         var assinatura = new SigningCredentials(
-//             new SymmetricSecurityKey(chave),
-//             SecurityAlgorithms.HmacSha256
-//         );
+        var assinatura = new SigningCredentials(
+            new SymmetricSecurityKey(chave),
+            SecurityAlgorithms.HmacSha256
+        );
 
-//         var token = new JwtSecurityToken(
-//             claims: claims,
-//             expires: DateTime.Now.AddSeconds(30),
-//             signingCredentials: assinatura
-//         );
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: DateTime.Now.AddSeconds(30),
+            signingCredentials: assinatura
+        );
         
-//         return new JwtSecurityTokenHandler().WriteToken(token);
-//     }
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
 
 
-// }
+}
