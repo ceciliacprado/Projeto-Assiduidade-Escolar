@@ -98,9 +98,13 @@ namespace API.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Nome")
+<<<<<<< HEAD
                         .HasColumnType("longtext");
 
                     b.Property<string>("Role")
+=======
+                        .IsRequired()
+>>>>>>> e464357a02a7a146ad62ec4a3201504730868697
                         .HasColumnType("longtext");
 
                     b.Property<string>("Senha")
@@ -108,7 +112,7 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Usuarios");
+                    b.ToTable("Alunos");
                 });
 
             modelBuilder.Entity("API.Models.Frequencia", b =>
