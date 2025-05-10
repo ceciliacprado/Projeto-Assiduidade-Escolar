@@ -1,7 +1,7 @@
 using System;
 using API.Models;
 
-namespace API.Data;
+namespace API.Repositories;
 
 public interface IAlunoRepository
 {

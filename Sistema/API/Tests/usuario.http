@@ -15,11 +15,22 @@ POST {{url_base}}/cadastrar
 Content-Type: application/json
 
 {
-    "nome": "João Silva",
-    "email": "joao@email.com",
-    "senha": "123456",
-    "permissao": 1
+    "nome" : "teste",
+    "email" : "teste@gmail.com",
+    "senha" : "123",
+    "role" : "admin"
 }
 
-### Listar alunos
-GET {{url_base}}
+### Login
+POST {{url_base}}/login
+Content-Type: application/json
+
+{
+    "nome" : "teste",
+    "email" : "teste@gmail.com",
+    "senha" : "123",
+    "role" : "admin"
+}
+
+### Listar usuários
+GET {{url_base}}/listar
