@@ -1,7 +1,7 @@
-@url_base = http://localhost:5268/api/usuario
+@url_base = http://localhost:5268/api/professor
 
 
-### Gerar token do usuario
+### Gerar token d professor
 POST {{url_base}}/gerar-token
 Content-Type: application/json
 
@@ -10,14 +10,14 @@ Content-Type: application/json
     "senha": "123456"
 }
 
-### Cadastrar usuario
+### Cadastrar professor
 POST {{url_base}}/cadastrar
 Content-Type: application/json
 
 {
-    "nome" : "teste",
-    "email" : "teste@gmail.com",
-    "senha" : "123",
+    "nome" : "Professor Admin",
+    "email" : "admin@email.com",
+    "senha" : "123456",
     "role" : "admin"
 }
 
@@ -26,11 +26,9 @@ POST {{url_base}}/login
 Content-Type: application/json
 
 {
-    "nome" : "teste",
-    "email" : "teste@gmail.com",
-    "senha" : "123",
-    "role" : "admin"
+    "email" : "admin@email.com",
+    "senha" : "123456"
 }
 
-### Listar usuários
+### Listar professores
 GET {{url_base}}/listar

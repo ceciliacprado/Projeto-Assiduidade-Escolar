@@ -22,7 +22,7 @@ builder.Services.AddDbContext<AppDataContext>
 builder.Services.
     AddScoped<IAlunoRepository, AlunoRepository>();
 builder.Services.
-    AddScoped<IUsuarioRepository, UsuarioRepository>();
+    AddScoped<IProfessorRepository, ProfessorRepository>();
 builder.Services.
     AddScoped<IFrequenciaRepository, FrequenciaRepository>();
 builder.Services.

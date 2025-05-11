@@ -10,6 +10,6 @@ public class Aluno
     public string Senha { get; set; } = string.Empty;
     public DateTime CriadoEm { get; set; }
 
-    public int DisciplinaId { get; set; }
+    public int? DisciplinaId { get; set; }
     public Disciplina? Disciplina { get; set; }
 }
