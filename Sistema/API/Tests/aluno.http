@@ -1,14 +1,13 @@
 @url_base = http://localhost:5268/api/aluno
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidGVzdGVAZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJleHAiOjE3NDY5MjM3Mzl9.SWgIGxLZudiCtoMwdmkgV3ewcgE88BEDBa-a65BlzDs
-### Cadastrar aluno
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidGVzdGVAZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJleHAiOjE3NDY5MzMzNTR9.7KbPiQKPYOSPwaxKmKwN3ebvR2cTzGFVeaAjBJbFpO8
 POST {{url_base}}/cadastrar
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "nome" : "filipe",
-    "email" : "filipe@gmail.com"
+    "nome" : "cecilia",
+    "email" : "cecilia@gmail.com"
 }
 
 ### Listar aluno

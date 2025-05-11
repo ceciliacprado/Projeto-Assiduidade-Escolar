@@ -88,7 +88,7 @@ namespace API.Migrations
                     b.Property<int>("DisciplinaId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Presenca")
+                    b.Property<bool>("Presente")
                         .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");

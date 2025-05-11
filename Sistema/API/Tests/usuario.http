@@ -6,7 +6,7 @@ POST {{url_base}}/gerar-token
 Content-Type: application/json
 
 {
-    "email": "joao@email.com",
+    "email": "cecilia@email.com",
     "senha": "123456"
 }
 
