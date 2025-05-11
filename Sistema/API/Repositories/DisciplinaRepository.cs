@@ -11,6 +11,7 @@ public class DisciplinaRepository : IDisciplinaRepository
     {
         _context = context;
     }
+
     public void Cadastrar(Disciplina disciplina)
     {
         _context.Disciplinas.Add(disciplina);
@@ -20,5 +21,26 @@ public class DisciplinaRepository : IDisciplinaRepository
     public List<Disciplina> Listar()
     {
         return _context.Disciplinas.ToList();
+    }
+
+    public Disciplina? BuscarPorId(int id)
+    {
+        return _context.Disciplinas.Find(id);
+    }
+
+    public void Atualizar(Disciplina disciplina)
+    {
+        _context.Disciplinas.Update(disciplina);
+        _context.SaveChanges();
+    }
+
+    public void Deletar(int id)
+    {
+        var disciplina = _context.Disciplinas.Find(id);
+        if (disciplina != null)
+        {
+            _context.Disciplinas.Remove(disciplina);
+            _context.SaveChanges();
+        }
     }
 }

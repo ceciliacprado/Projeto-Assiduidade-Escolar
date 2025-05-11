@@ -1,18 +1,35 @@
 @url_base = http://localhost:5268/api/aluno
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZW1haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJleHAiOjE3NDk5OTUyMTN9.bAvU_-E8sIgZyyycInXsWykEtQFA0i7aga_6KEs61tQ
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZW1haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJleHAiOjE3NDk5OTY1NDN9.xgvPYYaIkTctvDKjfFth0pU2fAen8W63iKi_j674ayQ
 
 
-### Cadastrar aluno
+### 1. Cadastrar Aluno (requer role admin)
 POST {{url_base}}/cadastrar
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "nome" : "filipe",
-    "email" : "filipe@gmail.com"
+    "nome": "cecilia love",
+    "email": "cecilia_love@email.com",
+    "senha": "123456",
+    "matricula": "202020"
 }
 
-### Listar aluno
+### 2. Listar Alunos (requer autenticação)
 GET {{url_base}}/listar
 Authorization: Bearer {{token}}
+
+### 3. Buscar Aluno por ID (requer autenticação)
+GET {{url_base}}/1
+Authorization: Bearer {{token}}
+
+### 4. Vincular Aluno à Disciplina (requer role admin)
+POST {{url_base}}/vincular-disciplina
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "alunoId": 4,
+    "disciplinaId": 2
+}
+

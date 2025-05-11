@@ -21,4 +21,15 @@ public class AlunoRepository : IAlunoRepository
     {
         return _context.Alunos.ToList();
     }
+
+    public Aluno? BuscarPorId(int id)
+    {
+        return _context.Alunos.Find(id);
+    }
+
+    public void Atualizar(Aluno aluno)
+    {
+        _context.Alunos.Update(aluno);
+        _context.SaveChanges();
+    }
 }
