@@ -23,6 +23,11 @@ builder.Services.
     AddScoped<IAlunoRepository, AlunoRepository>();
 builder.Services.
     AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.
+    AddScoped<IFrequenciaRepository, FrequenciaRepository>();
+builder.Services.
+    AddScoped<IDisciplinaRepository, DisciplinaRepository>();
+
 
 var chaveJwt = builder.Configuration["JwtSettings:SecretKey"];
 

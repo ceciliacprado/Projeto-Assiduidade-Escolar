@@ -30,13 +30,27 @@ namespace API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DisciplinaId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Senha")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DisciplinaId");
 
                     b.ToTable("Alunos");
                 });
@@ -74,7 +88,7 @@ namespace API.Migrations
                     b.Property<int>("DisciplinaId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Presente")
+                    b.Property<bool>("Presenca")
                         .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");
@@ -98,13 +112,9 @@ namespace API.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Nome")
-<<<<<<< HEAD
                         .HasColumnType("longtext");
 
                     b.Property<string>("Role")
-=======
-                        .IsRequired()
->>>>>>> e464357a02a7a146ad62ec4a3201504730868697
                         .HasColumnType("longtext");
 
                     b.Property<string>("Senha")
@@ -112,7 +122,18 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Alunos");
+                    b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("API.Models.Aluno", b =>
+                {
+                    b.HasOne("API.Models.Disciplina", "Disciplina")
+                        .WithMany()
+                        .HasForeignKey("DisciplinaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Disciplina");
                 });
 
             modelBuilder.Entity("API.Models.Frequencia", b =>

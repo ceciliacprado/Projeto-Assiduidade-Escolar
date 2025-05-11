@@ -8,6 +8,5 @@ public class Admin
     public string Nome { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Senha { get; set; } = string.Empty;
-    public int Permissao { get; set; }
     public DateTime CriadoEm { get; set; }
 }

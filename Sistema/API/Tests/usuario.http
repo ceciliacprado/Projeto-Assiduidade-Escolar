@@ -1,7 +1,7 @@
-@url_base = http://localhost:5268/api/aluno
+@url_base = http://localhost:5268/api/usuario
 
 
-### Gerar token do aluno
+### Gerar token do usuario
 POST {{url_base}}/gerar-token
 Content-Type: application/json
 
@@ -10,7 +10,7 @@ Content-Type: application/json
     "senha": "123456"
 }
 
-### Cadastrar aluno
+### Cadastrar usuario
 POST {{url_base}}/cadastrar
 Content-Type: application/json
 
