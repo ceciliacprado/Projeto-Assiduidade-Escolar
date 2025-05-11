@@ -1,0 +1,26 @@
+@url_base = http://localhost:5268/api/frequencia
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidGVzdGVAZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJleHAiOjE3NDY5MjU1MDZ9.g8bVq57QcWabpf75uROTc3d29O8WXI43FcKZ-cAQ0xA
+
+@idAluno = 1
+
+@idDisciplina = 1
+### Cadastrar frequencia
+POST {{url_base}}/registrar
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "alunoId": 1,
+    "disciplinaId": 1,
+    "dataFrequencia": "2025-05-10",
+    "presente": false
+}
+
+### Listar faltas por aluno - PREENCHER O id!!!!!
+GET {{url_base}}/listar/{{idAluno}}
+Authorization: Bearer {{token}}
+
+### situação do aluno na disciplina - PREENCHER Os ids!!!!!
+GET {{url_base}}/situacao/{{idAluno}}/{{idDisciplina}}
+Authorization: Bearer {{token}}
