@@ -40,9 +40,6 @@ namespace API.Repositories
                 // Tenta salvar as alterações
                 var result = _context.SaveChanges();
 
-                // Se não salvou nenhum registro, lança exceção
-                if (result == 0)
-                    throw new DbUpdateException("Falha ao salvar o registro de frequência", null);
 
                 // Se chegou aqui, commit da transação
                 transaction.Commit();

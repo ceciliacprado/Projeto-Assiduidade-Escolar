@@ -1,7 +1,6 @@
 @url_base = http://localhost:5268/api/aluno
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZW1haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJleHAiOjE3NDk5OTY1NDN9.xgvPYYaIkTctvDKjfFth0pU2fAen8W63iKi_j674ayQ
-
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZW1haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJleHAiOjE3NTAwMTY3MDV9.sA4Y4AYfn1nIJG16F9dtOOKZVYYkYRiqiZUGJpG0yy8
 
 ### 1. Cadastrar Aluno (requer role admin)
 POST {{url_base}}/cadastrar
@@ -9,7 +8,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "nome": "cecilia love",
+    "nome": "cecilia",
     "email": "cecilia_love@email.com",
     "senha": "123456",
     "matricula": "202020"
@@ -29,7 +28,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "alunoId": 4,
-    "disciplinaId": 2
+    "alunoId": 1,
+    "disciplinaId": 1
 }
 

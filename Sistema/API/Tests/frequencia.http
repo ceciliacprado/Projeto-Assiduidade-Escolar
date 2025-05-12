@@ -9,8 +9,8 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "alunoId": 4,
-    "disciplinaId": 2,
+    "alunoId": 1,
+    "disciplinaId": 1,
     "data": "2024-05-11T10:00:00",
     "presente": false
 }
@@ -22,7 +22,7 @@ Content-Type: application/json
 
 {
     "alunoId": 1,
-    "disciplinaId": 2,
+    "disciplinaId": 1,
     "data": "2024-05-11T08:00:00",
     "presente": true
 }
@@ -33,7 +33,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "alunoId": 8,
+    "alunoId": 1,
     "disciplinaId": 1
 }
 
@@ -43,7 +43,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "alunoId": 8,
+    "alunoId": 1,
     "disciplinaId": 1
 }
 
@@ -53,6 +53,6 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "alunoId": 3,
-    "disciplinaId": 2
+    "alunoId": 1,
+    "disciplinaId": 1
 }
