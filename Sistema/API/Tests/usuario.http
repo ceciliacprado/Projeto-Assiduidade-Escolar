@@ -1,0 +1,19 @@
+@url_base = http://localhost:5268/api/usuario
+
+### Login como Professor (Admin)
+POST {{url_base}}/login
+Content-Type: application/json
+
+{
+    "email": "admin@email.com",
+    "senha": "123456"
+}
+
+### Login como Aluno
+POST {{url_base}}/login
+Content-Type: application/json
+
+{
+    "email": "cecilia_love@email.com",
+    "senha": "123456"
+} 
