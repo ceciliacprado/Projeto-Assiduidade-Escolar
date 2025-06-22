@@ -1,87 +1,126 @@
 "use client";
 
-import api from "@/services/api";
-import { Usuario } from "@/types/usuario";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import {
+  Box,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  CircularProgress,
+  Container
+} from '@mui/material';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../../contexts/AuthContext';
+import { authService } from '../../../services/api';
 
-function Login() {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  async function efetuarLogin(e: React.FormEvent) {
-    e.preventDefault();
-    const usuario: Usuario = {
-      email,
-      senha,
-    };
-    try {
-      const resposta = await api.post("usuario/login", usuario);
-      localStorage.setItem("token", resposta.data as string);
-      router.push("/aluno/listar");
-    } catch (erro) {
-      console.error(erro);
-      alert("Login ou senha incorretos!");
+  // Se já estiver autenticado, redireciona para o dashboard
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/');
     }
-  }
+  }, [isAuthenticated, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await authService.login({ email, senha });
+      login(response.token);
+      router.push('/');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { mensagem?: string } } };
+      setError(error.response?.data?.mensagem || 'Erro ao fazer login');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
-        <div className="text-center mb-8">
-          <img 
-            src="https://img.icons8.com/color/48/000000/school.png" 
-            alt="Logo" 
-            className="mx-auto w-16 h-16"
-          />
-          <h1 className="text-2xl font-bold text-gray-800 mt-4">Escola Elite</h1>
-          <p className="text-gray-600">Sistema de Controle de Assiduidade</p>
-        </div>
-        
-        <form onSubmit={efetuarLogin} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              E-mail
-            </label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              required 
+    <Container maxWidth="sm">
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            width: '100%',
+            maxWidth: 400,
+          }}
+        >
+          <Typography variant="h4" component="h1" gutterBottom align="center">
+            Login
+          </Typography>
+          <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
+            Sistema de Assiduidade Escolar
+          </Typography>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email"
+              name="email"
+              autoComplete="email"
+              autoFocus
               value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
-          </div>
-          
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Senha
-            </label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              required 
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="senha"
+              label="Senha"
+              type="password"
+              id="senha"
+              autoComplete="current-password"
               value={senha}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSenha(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              onChange={(e) => setSenha(e.target.value)}
+              disabled={loading}
             />
-          </div>
-          
-          <div>
-            <button 
-              type="submit" 
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={loading}
             >
-              Entrar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+              {loading ? <CircularProgress size={24} /> : 'Entrar'}
+            </Button>
+          </Box>
+
+          <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
+            Use suas credenciais de professor ou aluno
+          </Typography>
+        </Paper>
+      </Box>
+    </Container>
   );
 }
-
-export default Login;
