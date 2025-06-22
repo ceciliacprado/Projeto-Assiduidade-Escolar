@@ -39,6 +39,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+
+builder.Services.AddCors(options =>
+    options.AddPolicy("Acesso total",
+        configs => configs
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod())
+);
+
+
 var connectionString = builder.
     Configuration.GetConnectionString("MySQL");
 
@@ -82,6 +92,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+app.UseCors("Acesso total");
 app.UseAuthentication();
 app.UseAuthorization();
 

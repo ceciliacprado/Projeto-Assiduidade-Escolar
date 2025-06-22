@@ -44,6 +44,7 @@ export const authService = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
     // Usando o endpoint de login do professor
     const response = await api.post<string>('/professor/login', credentials);
+    console.log("caiu aqui", response);
     // A API retorna apenas o token como string, então precisamos encapsular
     return { token: response.data };
   }

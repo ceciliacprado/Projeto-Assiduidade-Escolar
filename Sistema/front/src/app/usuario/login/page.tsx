@@ -39,7 +39,6 @@ export default function LoginPage() {
       const response = await authService.login({ email, senha });
       login(response.token);
       router.push('/');
-      console.log("caiu aqui", response);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { mensagem?: string } } };
       setError(error.response?.data?.mensagem || 'Erro ao fazer login');
