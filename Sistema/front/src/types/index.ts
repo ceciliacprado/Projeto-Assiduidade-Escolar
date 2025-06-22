@@ -12,12 +12,19 @@ export interface LoginResponse {
   token: string;
 }
 
+export interface Turma {
+  id?: number;
+  nome: string;
+  ano: string;
+  serie: string;
+  criadoEm?: string;
+}
+
 export interface Aluno {
   id?: number;
   nome: string;
-  email: string;
-  senha: string;
-  matricula: string;
+  turmaId?: number;
+  turma?: Turma;
   disciplinaId?: number;
   disciplina?: Disciplina;
   criadoEm?: string;
@@ -29,6 +36,7 @@ export interface Professor {
   email: string;
   senha: string;
   especialidade: string;
+  role: string;
   criadoEm?: string;
 }
 
@@ -37,9 +45,17 @@ export interface Disciplina {
   nome: string;
   codigo: string;
   cargaHoraria: number;
+  turmaId?: number;
+  turma?: Turma;
   professorId?: number;
   professor?: Professor;
   criadoEm?: string;
+}
+
+export enum StatusFrequencia {
+  Presente = 1,
+  Ausente = 2,
+  Atraso = 3
 }
 
 export interface Frequencia {

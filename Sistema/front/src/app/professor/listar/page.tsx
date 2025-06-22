@@ -40,7 +40,8 @@ export default function ProfessoresPage() {
     nome: '',
     email: '',
     senha: '',
-    especialidade: ''
+    especialidade: '',
+    role: 'admin'
   });
 
   useEffect(() => {
@@ -66,7 +67,8 @@ export default function ProfessoresPage() {
         nome: professor.nome,
         email: professor.email,
         senha: professor.senha,
-        especialidade: professor.especialidade
+        especialidade: professor.especialidade,
+        role: professor.role
       });
     } else {
       setEditingProfessor(null);
@@ -74,7 +76,8 @@ export default function ProfessoresPage() {
         nome: '',
         email: '',
         senha: '',
-        especialidade: ''
+        especialidade: '',
+        role: 'admin'
       });
     }
     setOpenDialog(true);
@@ -93,7 +96,10 @@ export default function ProfessoresPage() {
         setError('Funcionalidade de edição não implementada na API');
       } else {
         // Criar novo professor
-        await professorService.cadastrar(formData);
+        await professorService.cadastrar({
+          ...formData,
+          role: 'admin'
+        });
       }
 
       fetchData();

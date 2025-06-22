@@ -38,27 +38,19 @@ namespace API.Migrations
                     b.Property<int?>("DisciplinaId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<string>("Senha")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                    b.Property<int?>("TurmaId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DisciplinaId");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
+                    b.HasIndex("TurmaId");
 
                     b.ToTable("Alunos");
                 });
@@ -71,6 +63,14 @@ namespace API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CargaHoraria")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
                     b.Property<DateTime>("CriadoEm")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
@@ -81,7 +81,17 @@ namespace API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<int?>("ProfessorId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TurmaId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ProfessorId");
+
+                    b.HasIndex("TurmaId");
 
                     b.ToTable("Disciplinas");
                 });
@@ -138,6 +148,11 @@ namespace API.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)");
 
+                    b.Property<string>("Especialidade")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -161,6 +176,39 @@ namespace API.Migrations
                     b.ToTable("Professores");
                 });
 
+            modelBuilder.Entity("API.Models.Turma", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Ano")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Serie")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("varchar(5)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Turmas");
+                });
+
             modelBuilder.Entity("API.Models.Aluno", b =>
                 {
                     b.HasOne("API.Models.Disciplina", "Disciplina")
@@ -168,7 +216,31 @@ namespace API.Migrations
                         .HasForeignKey("DisciplinaId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("API.Models.Turma", "Turma")
+                        .WithMany("Alunos")
+                        .HasForeignKey("TurmaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Disciplina");
+
+                    b.Navigation("Turma");
+                });
+
+            modelBuilder.Entity("API.Models.Disciplina", b =>
+                {
+                    b.HasOne("API.Models.Professor", "Professor")
+                        .WithMany("Disciplinas")
+                        .HasForeignKey("ProfessorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("API.Models.Turma", "Turma")
+                        .WithMany("Disciplinas")
+                        .HasForeignKey("TurmaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Professor");
+
+                    b.Navigation("Turma");
                 });
 
             modelBuilder.Entity("API.Models.Frequencia", b =>
@@ -200,6 +272,18 @@ namespace API.Migrations
                     b.Navigation("Alunos");
 
                     b.Navigation("Frequencias");
+                });
+
+            modelBuilder.Entity("API.Models.Professor", b =>
+                {
+                    b.Navigation("Disciplinas");
+                });
+
+            modelBuilder.Entity("API.Models.Turma", b =>
+                {
+                    b.Navigation("Alunos");
+
+                    b.Navigation("Disciplinas");
                 });
 #pragma warning restore 612, 618
         }

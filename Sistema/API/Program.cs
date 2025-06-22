@@ -6,11 +6,30 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using API.Repositories;
 using Microsoft.OpenApi.Models;
+using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configuração do JSON para permitir vírgulas trailing
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.SerializerOptions.AllowTrailingCommas = true;
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.PropertyNameCaseInsensitive = true;
+    options.SerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+});
 
-builder.Services.AddControllers();
+// Configuração para desabilitar validação automática de modelo
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+builder.Services.AddControllers(options =>
+{
+    options.SuppressAsyncSuffixInActionNames = false;
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -96,6 +115,20 @@ if (app.Environment.IsDevelopment())
 app.UseCors("Acesso total");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Middleware para tratamento de erros
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+    }
+});
 
 app.MapControllers();
 

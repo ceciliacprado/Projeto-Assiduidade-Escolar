@@ -40,9 +40,6 @@ export default function AlunosPage() {
   const [editingAluno, setEditingAluno] = useState<Aluno | null>(null);
   const [formData, setFormData] = useState({
     nome: '',
-    email: '',
-    senha: '',
-    matricula: '',
     disciplinaId: ''
   });
 
@@ -71,18 +68,13 @@ export default function AlunosPage() {
       setEditingAluno(aluno);
       setFormData({
         nome: aluno.nome,
-        email: aluno.email,
-        senha: aluno.senha,
-        matricula: aluno.matricula,
+
         disciplinaId: aluno.disciplinaId?.toString() || ''
       });
     } else {
       setEditingAluno(null);
       setFormData({
         nome: '',
-        email: '',
-        senha: '',
-        matricula: '',
         disciplinaId: ''
       });
     }
@@ -166,18 +158,14 @@ export default function AlunosPage() {
               <TableHead>
                 <TableRow>
                   <TableCell>Nome</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Matrícula</TableCell>
+                  <TableCell>Turma</TableCell>
                   <TableCell>Disciplina</TableCell>
-                  <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {alunos.map((aluno) => (
                   <TableRow key={aluno.id}>
                     <TableCell>{aluno.nome}</TableCell>
-                    <TableCell>{aluno.email}</TableCell>
-                    <TableCell>{aluno.matricula}</TableCell>
                     <TableCell>
                       <Chip
                         label={getDisciplinaNome(aluno.disciplinaId)}
@@ -229,32 +217,6 @@ export default function AlunosPage() {
                       label="Nome"
                       value={formData.nome}
                       onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                      margin="normal"
-                      required
-                    />
-                    <TextField
-                      fullWidth
-                      label="Email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      margin="normal"
-                      required
-                    />
-                    <TextField
-                      fullWidth
-                      label="Senha"
-                      type="password"
-                      value={formData.senha}
-                      onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
-                      margin="normal"
-                      required
-                    />
-                    <TextField
-                      fullWidth
-                      label="Matrícula"
-                      value={formData.matricula}
-                      onChange={(e) => setFormData({ ...formData, matricula: e.target.value })}
                       margin="normal"
                       required
                     />

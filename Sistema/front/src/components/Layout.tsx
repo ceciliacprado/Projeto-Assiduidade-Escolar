@@ -42,7 +42,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleLogout = () => {
     logout();
-    router.push('/usuario/login');
+    router.push('/professor/login');
   };
 
   const menuItems = [

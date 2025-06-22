@@ -1,51 +1,27 @@
 'use client';
 
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { CircularProgress, Box } from '@mui/material';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: string;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requiredRole 
-}) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/usuario/login');
-    } else if (requiredRole && user?.role !== requiredRole) {
-      router.push('/');
+      router.push('/professor/login');
     }
-  }, [isAuthenticated, user, requiredRole, router]);
+  }, [isAuthenticated, router]);
 
   if (!isAuthenticated) {
     return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
-        minHeight="100vh"
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (requiredRole && user?.role !== requiredRole) {
-    return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
-        minHeight="100vh"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
         <CircularProgress />
       </Box>
     );

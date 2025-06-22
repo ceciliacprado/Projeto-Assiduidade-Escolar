@@ -10,18 +10,11 @@ public class Aluno
     [Required]
     [StringLength(100)]
     public string Nome { get; set; } = string.Empty;
-    
-    [Required]
-    [EmailAddress]
-    [StringLength(150)]
-    public string Email { get; set; } = string.Empty;
-    
-    [Required]
-    [StringLength(255)]
-    public string Senha { get; set; } = string.Empty;
-    
     public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
 
+    public int? TurmaId { get; set; }
+    public Turma? Turma { get; set; }
+    
     // Relacionamento com Disciplina (opcional)
     public int? DisciplinaId { get; set; }
     public Disciplina? Disciplina { get; set; }

@@ -8,10 +8,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "nome": "cecilia2",
-    "email": "cecilia_love@email.com",
-    "senha": "123456",
-    "matricula": "202020"
+    "nome": "cecilia3"
 }
 
 ### 2. Listar Alunos (requer autenticação)

@@ -23,6 +23,12 @@ namespace API.Models
         [StringLength(50)]
         public string Role { get; set; } = "Professor";
         
+        [StringLength(100)]
+        public string Especialidade { get; set; } = string.Empty;
+        
         public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
+        
+        // Relacionamento com Disciplinas
+        public ICollection<Disciplina> Disciplinas { get; set; } = new List<Disciplina>();
     }
 }
