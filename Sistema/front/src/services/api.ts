@@ -42,8 +42,10 @@ api.interceptors.response.use(
 // Serviços de autenticação
 export const authService = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>('/usuario/login', credentials);
-    return response.data;
+    // Usando o endpoint de login do professor
+    const response = await api.post<string>('/professor/login', credentials);
+    // A API retorna apenas o token como string, então precisamos encapsular
+    return { token: response.data };
   }
 };
 
