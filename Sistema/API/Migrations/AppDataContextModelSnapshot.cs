@@ -17,7 +17,7 @@ namespace API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.15")
+                .HasAnnotation("ProductVersion", "8.0.17")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
@@ -31,26 +31,34 @@ namespace API.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("datetime(6)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int?>("DisciplinaId")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Senha")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DisciplinaId");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Alunos");
                 });
@@ -63,8 +71,15 @@ namespace API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CriadoEm")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
                     b.Property<string>("Nome")
-                        .HasColumnType("longtext");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.HasKey("Id");
 
@@ -81,6 +96,11 @@ namespace API.Migrations
 
                     b.Property<int>("AlunoId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<DateTime>("Data")
                         .HasColumnType("datetime(6)");
@@ -108,19 +128,35 @@ namespace API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CriadoEm")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
                     b.Property<string>("Email")
-                        .HasColumnType("longtext");
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
 
                     b.Property<string>("Nome")
-                        .HasColumnType("longtext");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Role")
-                        .HasColumnType("longtext");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("Senha")
-                        .HasColumnType("longtext");
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Professores");
                 });
@@ -128,8 +164,9 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.Aluno", b =>
                 {
                     b.HasOne("API.Models.Disciplina", "Disciplina")
-                        .WithMany()
-                        .HasForeignKey("DisciplinaId");
+                        .WithMany("Alunos")
+                        .HasForeignKey("DisciplinaId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Disciplina");
                 });
@@ -137,7 +174,7 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.Frequencia", b =>
                 {
                     b.HasOne("API.Models.Aluno", "Aluno")
-                        .WithMany()
+                        .WithMany("Frequencias")
                         .HasForeignKey("AlunoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -153,8 +190,15 @@ namespace API.Migrations
                     b.Navigation("Disciplina");
                 });
 
+            modelBuilder.Entity("API.Models.Aluno", b =>
+                {
+                    b.Navigation("Frequencias");
+                });
+
             modelBuilder.Entity("API.Models.Disciplina", b =>
                 {
+                    b.Navigation("Alunos");
+
                     b.Navigation("Frequencias");
                 });
 #pragma warning restore 612, 618
