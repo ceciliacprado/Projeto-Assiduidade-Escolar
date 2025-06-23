@@ -65,7 +65,9 @@ public class ProfessorController : ControllerBase
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, professor.Email),
-            new Claim(ClaimTypes.Role, "admin")
+            new Claim(ClaimTypes.Role, "admin"),
+            new Claim("nome", professor.Nome),
+            new Claim("email", professor.Email)
         };
 
         var chave = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!);

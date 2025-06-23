@@ -75,7 +75,7 @@ export interface VincularDisciplinaRequest {
 }
 
 export interface AuthContextType {
-  user: { email: string; role: string } | null;
+  user: { email: string; role: string; nome: string } | null;
   login: (token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;

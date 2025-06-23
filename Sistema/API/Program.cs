@@ -6,18 +6,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using API.Repositories;
 using Microsoft.OpenApi.Models;
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração do JSON para permitir vírgulas trailing
-builder.Services.Configure<JsonOptions>(options =>
+// Configuração dos Controllers
+builder.Services.AddControllers(options =>
 {
-    options.SerializerOptions.AllowTrailingCommas = true;
-    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-    options.SerializerOptions.PropertyNameCaseInsensitive = true;
-    options.SerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    options.SuppressAsyncSuffixInActionNames = false;
 });
 
 // Configuração para desabilitar validação automática de modelo
@@ -26,16 +22,13 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-builder.Services.AddControllers(options =>
-{
-    options.SuppressAsyncSuffixInActionNames = false;
-});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "API de Assiduidade Escolar", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
+    {vlrst
+    
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
         Name = "Authorization",
         In = ParameterLocation.Header,
