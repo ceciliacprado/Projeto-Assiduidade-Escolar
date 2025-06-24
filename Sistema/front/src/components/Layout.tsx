@@ -83,6 +83,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </Box>
   );
 
+  console.log("caiu aqui pora", user)
+
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
@@ -101,7 +103,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           {user && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Typography variant="body2">
-                {user.email} ({user.role})
+                {user.nome}
               </Typography>
               <Button
                 color="inherit"
