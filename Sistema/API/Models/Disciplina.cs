@@ -10,28 +10,30 @@ namespace API.Models
     {
         public int Id { get; set; }
         
-        [Required]
-        [StringLength(100)]
+        [Required(ErrorMessage = "Nome é obrigatório")]
+        [StringLength(100, ErrorMessage = "Nome deve ter no máximo 100 caracteres")]
         public string Nome { get; set; } = string.Empty;
         
-        [Required]
-        [StringLength(20)]
+        [Required(ErrorMessage = "Código é obrigatório")]
+        [StringLength(20, ErrorMessage = "Código deve ter no máximo 20 caracteres")]
         public string Codigo { get; set; } = string.Empty;
         
-        [Required]
+        [Required(ErrorMessage = "Carga horária é obrigatória")]
+        [Range(1, int.MaxValue, ErrorMessage = "Carga horária deve ser maior que zero")]
         public int CargaHoraria { get; set; }
         
         public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
         
-        // Relacionamento com Turma
-        public int? TurmaId { get; set; }
-        public Turma? Turma { get; set; }
+        // Relacionamento com Turma (obrigatório)
+        [Required(ErrorMessage = "Turma é obrigatória")]
+        public int TurmaId { get; set; }
+        public Turma Turma { get; set; } = null!;
         
-        // Relacionamento com Professor
+        // Relacionamento com Professor (opcional)
         public int? ProfessorId { get; set; }
         public Professor? Professor { get; set; }
         
-        // Relacionamento com Alunos
+        // Relacionamento many-to-many com Alunos
         public ICollection<Aluno> Alunos { get; set; } = new List<Aluno>();
         
         // Relacionamento com Frequencias

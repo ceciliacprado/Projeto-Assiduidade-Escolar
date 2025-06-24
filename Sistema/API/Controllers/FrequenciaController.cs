@@ -194,8 +194,12 @@ public class FrequenciaController : ControllerBase
             return NotFound(new { mensagem = "Disciplina não encontrada" });
         }
 
-        // Verifica se o aluno está matriculado na disciplina
-        if (aluno.DisciplinaId != frequencia.DisciplinaId)
+        // Verifica se o aluno está matriculado na disciplina através do relacionamento many-to-many
+        var alunoVinculado = _context.Alunos
+            .Include(a => a.Disciplinas)
+            .Any(a => a.Id == frequencia.AlunoId && a.Disciplinas.Any(d => d.Id == frequencia.DisciplinaId));
+
+        if (!alunoVinculado)
         {
             return BadRequest(new { mensagem = "Aluno não está matriculado nesta disciplina" });
         }

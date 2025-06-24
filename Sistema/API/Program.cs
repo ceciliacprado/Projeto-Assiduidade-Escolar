@@ -1,10 +1,12 @@
 using System.Text;
+using API.Configuration;
 using API.Data;
 using API.Models;
+using API.Repositories;
+using API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using API.Repositories;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,18 +25,24 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
+
+// Configuração das configurações
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+// Configuração do Swagger
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "API de Assiduidade Escolar", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {vlrst
     
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
+    
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -51,7 +59,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
+// Configuração do CORS
 builder.Services.AddCors(options =>
     options.AddPolicy("Acesso total",
         configs => configs
@@ -60,24 +68,34 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod())
 );
 
+// Configuração do Entity Framework
+var connectionString = builder.Configuration.GetConnectionString("MySQL");
 
-var connectionString = builder.
-    Configuration.GetConnectionString("MySQL");
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException("Connection string 'MySQL' não foi configurada no appsettings.json");
+}
 
-builder.Services.AddDbContext<AppDataContext>
-    (options => options.UseMySql(connectionString,
-    ServerVersion.AutoDetect(connectionString)));
-builder.Services.
-    AddScoped<IAlunoRepository, AlunoRepository>();
-builder.Services.
-    AddScoped<IProfessorRepository, ProfessorRepository>();
-builder.Services.
-    AddScoped<IFrequenciaRepository, FrequenciaRepository>();
-builder.Services.
-    AddScoped<IDisciplinaRepository, DisciplinaRepository>();
+builder.Services.AddDbContext<AppDataContext>(options => 
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+// Registro dos Repositories
+builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
+builder.Services.AddScoped<IProfessorRepository, ProfessorRepository>();
+builder.Services.AddScoped<IFrequenciaRepository, FrequenciaRepository>();
+builder.Services.AddScoped<IDisciplinaRepository, DisciplinaRepository>();
 
-var chaveJwt = builder.Configuration["JwtSettings:SecretKey"];
+// Registro dos Services
+builder.Services.AddScoped<IAlunoService, AlunoService>();
+builder.Services.AddScoped<IDataInitializationService, DataInitializationService>();
+
+// Configuração da Autenticação JWT
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.SecretKey))
+{
+    throw new InvalidOperationException("JwtSettings:SecretKey não foi configurada no appsettings.json");
+}
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -89,8 +107,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(chaveJwt!))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
         };
     });
 
@@ -98,14 +115,17 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Configuração do Pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-
+// Middleware de CORS
 app.UseCors("Acesso total");
+
+// Middleware de Autenticação e Autorização
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -124,5 +144,12 @@ app.Use(async (context, next) =>
 });
 
 app.MapControllers();
+
+// Inicializar dados padrão
+using (var scope = app.Services.CreateScope())
+{
+    var dataInitializationService = scope.ServiceProvider.GetRequiredService<IDataInitializationService>();
+    await dataInitializationService.InitializeDefaultDataAsync();
+}
 
 app.Run();

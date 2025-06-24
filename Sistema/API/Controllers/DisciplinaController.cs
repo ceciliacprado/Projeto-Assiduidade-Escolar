@@ -101,15 +101,17 @@ public class DisciplinaController : ControllerBase
     [Authorize(Roles = "admin")]
     public IActionResult Excluir(int id)
     {
-        var disciplina = _context.Disciplinas.Find(id);
+        var disciplina = _context.Disciplinas
+            .Include(d => d.Alunos)
+            .FirstOrDefault(d => d.Id == id);
+            
         if (disciplina == null)
         {
             return NotFound(new { mensagem = "Disciplina não encontrada" });
         }
 
         // Verifica se existem alunos vinculados à disciplina
-        var alunosVinculados = _alunoRepository.Listar().Any(a => a.DisciplinaId == id);
-        if (alunosVinculados)
+        if (disciplina.Alunos.Any())
         {
             return BadRequest(new { mensagem = "Não é possível deletar a disciplina pois existem alunos vinculados a ela" });
         }

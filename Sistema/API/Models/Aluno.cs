@@ -7,17 +7,19 @@ public class Aluno
 {
     public int Id { get; set; }
     
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "Nome é obrigatório")]
+    [StringLength(100, ErrorMessage = "Nome deve ter no máximo 100 caracteres")]
     public string Nome { get; set; } = string.Empty;
+    
     public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
 
-    public int? TurmaId { get; set; }
-    public Turma? Turma { get; set; }
+    // TurmaId obrigatório
+    [Required(ErrorMessage = "Turma é obrigatória")]
+    public int TurmaId { get; set; }
+    public Turma Turma { get; set; } = null!;
     
-    // Relacionamento com Disciplina (opcional)
-    public int? DisciplinaId { get; set; }
-    public Disciplina? Disciplina { get; set; }
+    // Relacionamento many-to-many com Disciplinas através da Turma
+    public ICollection<Disciplina> Disciplinas { get; set; } = new List<Disciplina>();
     
     // Relacionamento com Frequencias
     public ICollection<Frequencia> Frequencias { get; set; } = new List<Frequencia>();

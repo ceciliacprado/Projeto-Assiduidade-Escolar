@@ -1,11 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using API.Configuration;
 using API.Data;
 using API.Repositories;
 using API.Models;
+using API.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 
 namespace API.Controllers;
 
@@ -14,39 +17,39 @@ namespace API.Controllers;
 public class ProfessorController : ControllerBase
 {
     private readonly IProfessorRepository _professorRepository;
-    private readonly IConfiguration _configuration;
+    private readonly JwtSettings _jwtSettings;
+    
     public ProfessorController(IProfessorRepository professorRepository,
-        IConfiguration configuration)
+        IOptions<JwtSettings> jwtSettings)
     {
         _professorRepository = professorRepository;
-        _configuration = configuration;
+        _jwtSettings = jwtSettings.Value;
     }
 
     [HttpPost("cadastrar")]
-    public IActionResult Cadastrar([FromBody] Professor professor)
+    public IActionResult Cadastrar([FromBody] CadastrarProfessorDTO dto)
     {
-        if (professor.Role?.ToLower() != "admin")
+        var professor = new Professor
         {
-            return BadRequest(new { mensagem = "A role deve ser 'admin' para professores" });
-        }
+            Nome = dto.Nome,
+            Email = dto.Email,
+            Senha = dto.Senha,
+            Especialidade = dto.Especialidade
+        };
+        
         _professorRepository.Cadastrar(professor);
         return Created("", professor);
     }
 
     [HttpPost("login")]
-    public IActionResult Login([FromBody] Professor professor)
+    public IActionResult Login([FromBody] LoginProfessorDTO dto)
     {
         Professor? professorExistente = _professorRepository
-            .BuscarProfessorPorEmailSenha(professor.Email, professor.Senha);
+            .BuscarProfessorPorEmailSenha(dto.Email, dto.Senha);
 
         if (professorExistente == null)
         {
             return Unauthorized(new { mensagem = "Professor ou senha inválidos!" });
-        }
-
-        if (professorExistente.Role?.ToLower() != "admin")
-        {
-            return Unauthorized(new { mensagem = "Professor não tem permissão de administrador!" });
         }
 
         string token = GerarToken(professorExistente);
@@ -65,12 +68,12 @@ public class ProfessorController : ControllerBase
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, professor.Email),
-            new Claim(ClaimTypes.Role, "admin"),
+            new Claim(ClaimTypes.Role, professor.Role),
             new Claim("nome", professor.Nome),
             new Claim("email", professor.Email)
         };
 
-        var chave = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!);
+        var chave = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
 
         var assinatura = new SigningCredentials(
             new SymmetricSecurityKey(chave),
@@ -79,7 +82,7 @@ public class ProfessorController : ControllerBase
 
         var token = new JwtSecurityToken(
             claims: claims,
-            expires: DateTime.Now.AddSeconds(3000000),
+            expires: DateTime.Now.AddHours(_jwtSettings.ExpirationHours),
             signingCredentials: assinatura
         );
 

@@ -35,20 +35,15 @@ namespace API.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<int?>("DisciplinaId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<int?>("TurmaId")
+                    b.Property<int>("TurmaId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DisciplinaId");
 
                     b.HasIndex("TurmaId");
 
@@ -84,7 +79,7 @@ namespace API.Migrations
                     b.Property<int?>("ProfessorId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TurmaId")
+                    b.Property<int>("TurmaId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -158,11 +153,6 @@ namespace API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
                     b.Property<string>("Senha")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -209,19 +199,28 @@ namespace API.Migrations
                     b.ToTable("Turmas");
                 });
 
+            modelBuilder.Entity("AlunoDisciplina", b =>
+                {
+                    b.Property<int>("AlunosId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DisciplinasId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AlunosId", "DisciplinasId");
+
+                    b.HasIndex("DisciplinasId");
+
+                    b.ToTable("AlunoDisciplina");
+                });
+
             modelBuilder.Entity("API.Models.Aluno", b =>
                 {
-                    b.HasOne("API.Models.Disciplina", "Disciplina")
-                        .WithMany("Alunos")
-                        .HasForeignKey("DisciplinaId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("API.Models.Turma", "Turma")
                         .WithMany("Alunos")
                         .HasForeignKey("TurmaId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Disciplina");
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Turma");
                 });
@@ -236,7 +235,8 @@ namespace API.Migrations
                     b.HasOne("API.Models.Turma", "Turma")
                         .WithMany("Disciplinas")
                         .HasForeignKey("TurmaId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Professor");
 
@@ -262,6 +262,21 @@ namespace API.Migrations
                     b.Navigation("Disciplina");
                 });
 
+            modelBuilder.Entity("AlunoDisciplina", b =>
+                {
+                    b.HasOne("API.Models.Aluno", null)
+                        .WithMany()
+                        .HasForeignKey("AlunosId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.Disciplina", null)
+                        .WithMany()
+                        .HasForeignKey("DisciplinasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("API.Models.Aluno", b =>
                 {
                     b.Navigation("Frequencias");
@@ -269,8 +284,6 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.Disciplina", b =>
                 {
-                    b.Navigation("Alunos");
-
                     b.Navigation("Frequencias");
                 });
 

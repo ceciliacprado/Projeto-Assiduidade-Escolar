@@ -22,11 +22,12 @@ interface DecodedToken {
   name?: string;
   email?: string;
   role?: string;
+  nome?: string;
   exp: number;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<{ email: string; role: string } | null>(null);
+  const [user, setUser] = useState<{ email: string; role: string; nome: string } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -40,7 +41,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (decoded.exp > currentTime) {
           setUser({
             email: decoded.name || decoded.email || '',
-            role: decoded.role || 'user'
+            role: decoded.role || 'user',
+            nome: decoded.nome || ''
           });
           setIsAuthenticated(true);
         } else {
@@ -60,10 +62,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = (token: string) => {
     try {
       const decoded: DecodedToken = jwtDecode(token);
+      console.log('Token decodificado:', decoded);
+      
+      // Tentar diferentes formas de acessar as claims
       const userInfo = {
-        email: decoded.name || decoded.email || '',
-        role: decoded.role || 'user'
+        email: decoded.name || decoded.email || (decoded as any).email || '',
+        role: decoded.role || (decoded as any).role || 'user',
+        nome: decoded.nome || (decoded as any).nome || ''
       };
+      
+      console.log('UserInfo criado:', userInfo);
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userInfo));

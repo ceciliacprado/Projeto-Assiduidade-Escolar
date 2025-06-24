@@ -33,17 +33,12 @@ public class AppDataContext : DbContext
             entity.Property(e => e.Nome).IsRequired().HasMaxLength(100);
             entity.Property(e => e.CriadoEm).HasDefaultValueSql("CURRENT_TIMESTAMP");
             
-            // Relacionamento com Turma
+            // Relacionamento obrigatório com Turma
             entity.HasOne(e => e.Turma)
                   .WithMany(t => t.Alunos)
                   .HasForeignKey(e => e.TurmaId)
-                  .OnDelete(DeleteBehavior.SetNull);
-            
-            // Relacionamento com Disciplina (opcional)
-            entity.HasOne(e => e.Disciplina)
-                  .WithMany(d => d.Alunos)
-                  .HasForeignKey(e => e.DisciplinaId)
-                  .OnDelete(DeleteBehavior.SetNull);
+                  .OnDelete(DeleteBehavior.Restrict)
+                  .IsRequired();
         });
         
         // Configuração da entidade Disciplina
@@ -55,13 +50,14 @@ public class AppDataContext : DbContext
             entity.Property(e => e.CargaHoraria).IsRequired();
             entity.Property(e => e.CriadoEm).HasDefaultValueSql("CURRENT_TIMESTAMP");
             
-            // Relacionamento com Turma
+            // Relacionamento obrigatório com Turma
             entity.HasOne(e => e.Turma)
                   .WithMany(t => t.Disciplinas)
                   .HasForeignKey(e => e.TurmaId)
-                  .OnDelete(DeleteBehavior.SetNull);
+                  .OnDelete(DeleteBehavior.Restrict)
+                  .IsRequired();
             
-            // Relacionamento com Professor
+            // Relacionamento opcional com Professor
             entity.HasOne(e => e.Professor)
                   .WithMany(p => p.Disciplinas)
                   .HasForeignKey(e => e.ProfessorId)
@@ -96,8 +92,7 @@ public class AppDataContext : DbContext
             entity.Property(e => e.Nome).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Email).IsRequired().HasMaxLength(150);
             entity.Property(e => e.Senha).IsRequired().HasMaxLength(255);
-            entity.Property(e => e.Role).IsRequired().HasMaxLength(50);
-            entity.Property(e => e.Especialidade).HasMaxLength(100);
+            entity.Property(e => e.Especialidade).IsRequired().HasMaxLength(100);
             entity.Property(e => e.CriadoEm).HasDefaultValueSql("CURRENT_TIMESTAMP");
             
             // Índice único para email

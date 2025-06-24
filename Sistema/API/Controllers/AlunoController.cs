@@ -1,13 +1,9 @@
 using API.Data;
 using API.Models;
+using API.Services;
+using API.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using API.Repositories;
-using System.Text;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -15,132 +11,128 @@ namespace API.Controllers;
 [Route("api/aluno")]
 public class AlunoController : ControllerBase
 {
-    private readonly IAlunoRepository _alunoRepository;
-    private readonly IConfiguration _configuration;
-    private readonly IDisciplinaRepository _disciplinaRepository;
-    private readonly AppDataContext _context;
+    private readonly IAlunoService _alunoService;
 
-    public AlunoController(
-        IAlunoRepository alunoRepository,
-        IConfiguration configuration,
-        IDisciplinaRepository disciplinaRepository,
-        AppDataContext context)
+    public AlunoController(IAlunoService alunoService)
     {
-        _alunoRepository = alunoRepository;
-        _configuration = configuration;
-        _disciplinaRepository = disciplinaRepository;
-        _context = context;
+        _alunoService = alunoService;
     }
 
     [HttpPost("cadastrar")]
     [Authorize(Roles = "admin")]
-    public IActionResult Cadastrar([FromBody] Aluno aluno)
+    public async Task<IActionResult> Cadastrar([FromBody] CadastrarAlunoDTO dto)
     {
-        if (string.IsNullOrWhiteSpace(aluno.Nome))
+        try
         {
-            return BadRequest(new { mensagem = "Nome é obrigatório" });
+            var aluno = new Aluno
+            {
+                Nome = dto.Nome,
+                TurmaId = dto.TurmaId
+            };
+
+            var alunoCadastrado = await _alunoService.CadastrarAlunoAsync(aluno);
+            return Created("", alunoCadastrado);
         }
-
-        _context.Alunos.Add(aluno);
-        _context.SaveChanges();
-        return Created("", aluno);
-    }
-
-    [HttpPost("vincular-disciplina")]
-    [Authorize(Roles = "admin")]
-    public IActionResult VincularDisciplina([FromBody] VincularDisciplinaRequest request)
-    {
-        var aluno = _context.Alunos.Find(request.AlunoId);
-        if (aluno == null)
+        catch (InvalidOperationException ex)
         {
-            return NotFound(new { mensagem = "Aluno não encontrado" });
+            return BadRequest(new { mensagem = ex.Message });
         }
-
-        var disciplina = _context.Disciplinas.Find(request.DisciplinaId);
-        if (disciplina == null)
+        catch
         {
-            return NotFound(new { mensagem = "Disciplina não encontrada" });
+            return StatusCode(500, new { mensagem = "Erro interno do servidor" });
         }
-
-        aluno.DisciplinaId = request.DisciplinaId;
-        _context.SaveChanges();
-
-        return Ok(aluno);
     }
 
     [HttpGet("listar")]
     [Authorize]
-    public IActionResult Listar()
+    public async Task<IActionResult> Listar()
     {
-        var alunos = _context.Alunos
-            .Include(a => a.Turma)
-            .Include(a => a.Disciplina)
-            .ToList();
-        return Ok(alunos);
+        try
+        {
+            var alunos = await _alunoService.ListarAlunosAsync();
+            return Ok(alunos);
+        }
+        catch
+        {
+            return StatusCode(500, new { mensagem = "Erro interno do servidor" });
+        }
     }
 
     [HttpGet("{id}")]
     [Authorize]
-    public IActionResult BuscarPorId(int id)
+    public async Task<IActionResult> BuscarPorId(int id)
     {
-        var aluno = _context.Alunos
-            .Include(a => a.Turma)
-            .Include(a => a.Disciplina)
-            .FirstOrDefault(a => a.Id == id);
-
-        if (aluno == null)
+        try
         {
-            return NotFound(new { mensagem = "Aluno não encontrado" });
+            var aluno = await _alunoService.BuscarAlunoPorIdAsync(id);
+            if (aluno == null)
+            {
+                return NotFound(new { mensagem = "Aluno não encontrado" });
+            }
+            return Ok(aluno);
         }
-        return Ok(aluno);
+        catch
+        {
+            return StatusCode(500, new { mensagem = "Erro interno do servidor" });
+        }
     }
 
     [HttpPut("{id}")]
-    public IActionResult Atualizar(int id, [FromBody] Aluno aluno)
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> Atualizar(int id, [FromBody] AtualizarAlunoDTO dto)
     {
-        var alunoExistente = _context.Alunos.Find(id);
-        if (alunoExistente == null)
+        try
         {
-            return NotFound(new { mensagem = "Aluno não encontrado" });
+            var aluno = new Aluno
+            {
+                Nome = dto.Nome,
+                TurmaId = dto.TurmaId
+            };
+
+            var alunoAtualizado = await _alunoService.AtualizarAlunoAsync(id, aluno);
+            return Ok(alunoAtualizado);
         }
-
-        alunoExistente.Nome = aluno.Nome;
-        alunoExistente.TurmaId = aluno.TurmaId;
-        alunoExistente.DisciplinaId = aluno.DisciplinaId;
-
-        _context.SaveChanges();
-        return Ok(alunoExistente);
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch
+        {
+            return StatusCode(500, new { mensagem = "Erro interno do servidor" });
+        }
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Excluir(int id)
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> Excluir(int id)
     {
-        var aluno = _context.Alunos.Find(id);
-        if (aluno == null)
+        try
         {
-            return NotFound(new { mensagem = "Aluno não encontrado" });
+            var sucesso = await _alunoService.ExcluirAlunoAsync(id);
+            if (!sucesso)
+            {
+                return NotFound(new { mensagem = "Aluno não encontrado" });
+            }
+            return Ok(new { mensagem = "Aluno excluído com sucesso" });
         }
-
-        _context.Alunos.Remove(aluno);
-        _context.SaveChanges();
-        return Ok(new { mensagem = "Aluno excluído com sucesso" });
+        catch
+        {
+            return StatusCode(500, new { mensagem = "Erro interno do servidor" });
+        }
     }
 
     [HttpGet("turma/{turmaId}")]
-    public IActionResult ListarPorTurma(int turmaId)
+    [Authorize]
+    public async Task<IActionResult> ListarPorTurma(int turmaId)
     {
-        var alunos = _context.Alunos
-            .Include(a => a.Turma)
-            .Include(a => a.Disciplina)
-            .Where(a => a.TurmaId == turmaId)
-            .ToList();
-
-        return Ok(alunos);
+        try
+        {
+            var alunos = await _alunoService.ListarAlunosPorTurmaAsync(turmaId);
+            return Ok(alunos);
+        }
+        catch
+        {
+            return StatusCode(500, new { mensagem = "Erro interno do servidor" });
+        }
     }
-}
-
-public class VincularDisciplinaRequest
-{
-    public int AlunoId { get; set; }
-    public int DisciplinaId { get; set; }
 }
