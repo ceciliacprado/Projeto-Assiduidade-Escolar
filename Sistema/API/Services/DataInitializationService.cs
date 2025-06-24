@@ -17,63 +17,174 @@ public class DataInitializationService : IDataInitializationService
         // Verificar se já existem professores
         if (!_context.Professores.Any())
         {
-            var professorPadrao = new Professor
+            var professores = new List<Professor>
             {
-                Nome = "Administrador",
-                Email = "admin@escola.com",
-                Senha = "123456",
-                Especialidade = "Administração"
+                new Professor
+                {
+                    Nome = "Administrador",
+                    Email = "admin@escola.com",
+                    Senha = "123456",
+                    Especialidade = "Administração"
+                },
+                new Professor
+                {
+                    Nome = "Maria Silva",
+                    Email = "maria.silva@escola.com",
+                    Senha = "123456",
+                    Especialidade = "Matemática"
+                },
+                new Professor
+                {
+                    Nome = "João Santos",
+                    Email = "joao.santos@escola.com",
+                    Senha = "123456",
+                    Especialidade = "Português"
+                }
             };
 
-            _context.Professores.Add(professorPadrao);
+            _context.Professores.AddRange(professores);
             await _context.SaveChangesAsync();
         }
 
         // Verificar se já existem turmas
         if (!_context.Turmas.Any())
         {
-            var turmaPadrao = new Turma
+            var turmas = new List<Turma>
             {
-                Nome = "Turma A",
-                Ano = "2024",
-                Serie = "1º"
+                new Turma
+                {
+                    Nome = "Turma A",
+                    Ano = "2024",
+                    Serie = "1º Ano"
+                },
+                new Turma
+                {
+                    Nome = "Turma B",
+                    Ano = "2024",
+                    Serie = "2º Ano"
+                },
+                new Turma
+                {
+                    Nome = "Turma C",
+                    Ano = "2024",
+                    Serie = "3º Ano"
+                }
             };
 
-            _context.Turmas.Add(turmaPadrao);
+            _context.Turmas.AddRange(turmas);
             await _context.SaveChangesAsync();
         }
 
         // Verificar se já existem disciplinas
         if (!_context.Disciplinas.Any())
         {
-            var turma = _context.Turmas.First();
+            var turmas = _context.Turmas.ToList();
             
-            var disciplinasPadrao = new List<Disciplina>
+            var disciplinas = new List<Disciplina>();
+            
+            foreach (var turma in turmas)
             {
-                new Disciplina
+                disciplinas.AddRange(new List<Disciplina>
                 {
-                    Nome = "Matemática",
-                    Codigo = "MAT001",
-                    CargaHoraria = 80,
-                    TurmaId = turma.Id
-                },
-                new Disciplina
-                {
-                    Nome = "Português",
-                    Codigo = "PORT001",
-                    CargaHoraria = 80,
-                    TurmaId = turma.Id
-                },
-                new Disciplina
-                {
-                    Nome = "História",
-                    Codigo = "HIST001",
-                    CargaHoraria = 60,
-                    TurmaId = turma.Id
-                }
-            };
+                    new Disciplina
+                    {
+                        Nome = "Matemática",
+                        Codigo = $"MAT{turma.Id:D3}",
+                        CargaHoraria = 80,
+                        TurmaId = turma.Id
+                    },
+                    new Disciplina
+                    {
+                        Nome = "Português",
+                        Codigo = $"PORT{turma.Id:D3}",
+                        CargaHoraria = 80,
+                        TurmaId = turma.Id
+                    },
+                    new Disciplina
+                    {
+                        Nome = "História",
+                        Codigo = $"HIST{turma.Id:D3}",
+                        CargaHoraria = 60,
+                        TurmaId = turma.Id
+                    }
+                });
+            }
 
-            _context.Disciplinas.AddRange(disciplinasPadrao);
+            _context.Disciplinas.AddRange(disciplinas);
+            await _context.SaveChangesAsync();
+        }
+
+        // Verificar se já existem alunos
+        if (!_context.Alunos.Any())
+        {
+            var turmas = _context.Turmas.ToList();
+            
+            var alunos = new List<Aluno>();
+            
+            foreach (var turma in turmas)
+            {
+                alunos.AddRange(new List<Aluno>
+                {
+                    new Aluno
+                    {
+                        Nome = $"Ana Silva - {turma.Nome}",
+                        TurmaId = turma.Id
+                    },
+                    new Aluno
+                    {
+                        Nome = $"Carlos Oliveira - {turma.Nome}",
+                        TurmaId = turma.Id
+                    },
+                    new Aluno
+                    {
+                        Nome = $"Beatriz Costa - {turma.Nome}",
+                        TurmaId = turma.Id
+                    }
+                });
+            }
+
+            _context.Alunos.AddRange(alunos);
+            await _context.SaveChangesAsync();
+        }
+
+        // Verificar se já existem frequências
+        if (!_context.Frequencias.Any())
+        {
+            var alunos = _context.Alunos.ToList();
+            var disciplinas = _context.Disciplinas.ToList();
+            
+            var frequencias = new List<Frequencia>();
+            var dataAtual = DateTime.Now;
+            
+            // Criar frequências para os últimos 30 dias
+            for (int i = 0; i < 30; i++)
+            {
+                var data = dataAtual.AddDays(-i);
+                
+                // Pular fins de semana
+                if (data.DayOfWeek == DayOfWeek.Saturday || data.DayOfWeek == DayOfWeek.Sunday)
+                    continue;
+                
+                foreach (var aluno in alunos)
+                {
+                    foreach (var disciplina in disciplinas.Where(d => d.TurmaId == aluno.TurmaId))
+                    {
+                        // Simular presença (80% de chance de estar presente)
+                        var random = new Random();
+                        var presente = random.Next(1, 101) <= 80;
+                        
+                        frequencias.Add(new Frequencia
+                        {
+                            AlunoId = aluno.Id,
+                            DisciplinaId = disciplina.Id,
+                            Data = data,
+                            Presente = presente
+                        });
+                    }
+                }
+            }
+
+            _context.Frequencias.AddRange(frequencias);
             await _context.SaveChangesAsync();
         }
     }

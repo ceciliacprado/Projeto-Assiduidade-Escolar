@@ -1,26 +1,55 @@
-@url_base = http://localhost:5268/api/professor
-@token = 
+@baseUrl = http://localhost:5268
+@authToken = 
 
-### 1. Cadastrar Professor (Admin)
-POST {{url_base}}/cadastrar
+### Testes da API de Professores
+
+### 1. Login do Professor Administrador
+POST {{baseUrl}}/api/professor/login
 Content-Type: application/json
 
 {
-    "nome": "Professor Admin",
-    "email": "admin@email.com",
-    "senha": "123456",
-    "role": "admin"
-}
-
-### 4. Login como Professor
-POST {{url_base}}/login
-Content-Type: application/json
-
-{
-    "email": "admin@email.com",
+    "email": "admin@escola.com",
     "senha": "123456"
 }
 
-### 5. Listar Professores (requer autenticação)
-GET {{url_base}}/listar
-Authorization: Bearer {{token}}
+### 2. Login da Professora Maria Silva
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "maria.silva@escola.com",
+    "senha": "123456"
+}
+
+### 3. Login do Professor João Santos
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "joao.santos@escola.com",
+    "senha": "123456"
+}
+
+### 4. Listar Todos os Professores
+GET {{baseUrl}}/api/professor/listar
+
+### 5. Cadastrar Novo Professor (requer autenticação)
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Pedro Oliveira",
+    "email": "pedro.oliveira@escola.com",
+    "senha": "123456",
+    "especialidade": "Geografia"
+}
+
+### 6. Teste de Login Inválido
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "email.invalido@teste.com",
+    "senha": "senhaerrada"
+}

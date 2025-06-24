@@ -1,34 +1,56 @@
-@url_base = http://localhost:5268/api/disciplina
+@baseUrl = http://localhost:5268
+@authToken = 
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZW1haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJleHAiOjE3NTM1NTU3ODJ9.O4eA9M_hvoI2sAiHSUEH5hb1txbFhbjgE-bycszhAmI
+### Testes da API de Disciplinas
 
+### 1. Listar Todas as Disciplinas
+GET {{baseUrl}}/api/disciplina/listar
 
-### 1. Cadastrar Disciplina (requer role admin)
-POST {{url_base}}/cadastrar
-Authorization: Bearer {{token}}
+### 2. Buscar Disciplina por ID
+GET {{baseUrl}}/api/disciplina/1
+
+### 3. Cadastrar Nova Disciplina
+POST {{baseUrl}}/api/disciplina/cadastrar
 Content-Type: application/json
+Authorization: Bearer {{authToken}}
 
 {
-    "nome": "c#"
+    "nome": "Geografia",
+    "codigo": "GEO001",
+    "cargaHoraria": 60,
+    "turmaId": 1
 }
 
-### 2. Listar Disciplinas (requer autenticação)
-GET {{url_base}}/listar
-Authorization: Bearer {{token}}
-
-### 3. Buscar Disciplina por ID (requer autenticação)
-GET {{url_base}}/1
-Authorization: Bearer {{token}}
-
-### 4. Atualizar Disciplina (requer role admin)
-PUT {{url_base}}/1
-Authorization: Bearer {{token}}
+### 4. Atualizar Disciplina
+PUT {{baseUrl}}/api/disciplina/1
 Content-Type: application/json
+Authorization: Bearer {{authToken}}
 
 {
-    "nome": "Matemática atualizada"
+    "nome": "Matemática Avançada",
+    "codigo": "MAT001",
+    "cargaHoraria": 100,
+    "turmaId": 1
 }
 
-### 5. Deletar Disciplina (requer role admin)
-DELETE {{url_base}}/4
-Authorization: Bearer {{token}}
+### 5. Excluir Disciplina
+DELETE {{baseUrl}}/api/disciplina/10
+Authorization: Bearer {{authToken}}
+
+### 6. Listar Disciplinas por Turma
+GET {{baseUrl}}/api/disciplina/turma/1
+
+### 7. Buscar Disciplina por Código
+GET {{baseUrl}}/api/disciplina/codigo/MAT001
+
+### 8. Cadastrar Disciplina com Código Duplicado (deve falhar)
+POST {{baseUrl}}/api/disciplina/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Matemática Duplicada",
+    "codigo": "MAT001",
+    "cargaHoraria": 80,
+    "turmaId": 1
+}

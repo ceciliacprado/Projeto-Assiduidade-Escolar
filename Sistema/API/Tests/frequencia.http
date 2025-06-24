@@ -3,56 +3,90 @@
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZW1haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJleHAiOjE3NTAwMTczNzJ9.55K5xklCu0iVzeYW4zeD3kjQI1YMy28lP__DAFgO55o
 
 
-### 1. Registrar Frequência (requer role admin)
+### Testes da API de Frequências
+
+### 1. Listar Todas as Frequências
+GET {{url_base}}/listar
+
+### 2. Buscar Frequência por ID
+GET {{url_base}}/1
+
+### 3. Registrar Frequência
 POST {{url_base}}/registrar
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "alunoId": 4,
+    "alunoId": 1,
     "disciplinaId": 1,
-    "data": "2024-05-11T10:00:00",
-    "presente": false
-}
-
-### 2. Tentar Registrar Frequência para Aluno não Matriculado (deve falhar)
-POST {{url_base}}/registrar
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-    "alunoId": 4,
-    "disciplinaId": 1,
-    "data": "2024-05-11T08:00:00",
+    "data": "2024-01-15",
     "presente": true
 }
 
-### 3. Obter Faltas por Aluno (requer autenticação)
-POST {{url_base}}/faltas-aluno
+### 4. Atualizar Frequência
+PUT {{url_base}}/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
     "alunoId": 1,
-    "disciplinaId": 1
+    "disciplinaId": 1,
+    "data": "2024-01-15",
+    "presente": false
 }
 
-### 4. Obter Faltas por Disciplina (requer autenticação)
-POST {{url_base}}/faltas-disciplina
+### 5. Excluir Frequência
+DELETE {{url_base}}/100
+
+### 6. Listar Frequências por Aluno
+GET {{url_base}}/aluno/1
+
+### 7. Listar Frequências por Disciplina
+GET {{url_base}}/disciplina/1
+
+### 8. Listar Frequências por Data
+GET {{url_base}}/data/2024-01-15
+
+### 9. Relatório de Frequência por Aluno
+GET {{url_base}}/relatorio/aluno/1
+
+### 10. Relatório de Frequência por Turma
+GET {{url_base}}/relatorio/turma/1
+
+### 11. Relatório de Frequência por Disciplina
+GET {{url_base}}/relatorio/disciplina/1
+
+### 12. Relatório de Frequência por Período
+GET {{url_base}}/relatorio/periodo?dataInicio=2024-01-01&dataFim=2024-01-31
+
+### 13. Registrar Frequência em Lote
+POST {{url_base}}/registrar-lote
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "alunoId": 1,
-    "disciplinaId": 1
+    "data": "2024-01-16",
+    "frequencias": [
+        {
+            "alunoId": 1,
+            "disciplinaId": 1,
+            "presente": true
+        },
+        {
+            "alunoId": 2,
+            "disciplinaId": 1,
+            "presente": false
+        },
+        {
+            "alunoId": 3,
+            "disciplinaId": 1,
+            "presente": true
+        }
+    ]
 }
 
-### 5. Obter Situação do Aluno na Disciplina (requer autenticação)
-POST {{url_base}}/situacao
-Authorization: Bearer {{token}}
-Content-Type: application/json
+### 14. Estatísticas de Frequência
+GET {{url_base}}/estatisticas
 
-{
-    "alunoId": 1,
-    "disciplinaId": 1
-}
+### 15. Alunos com Mais Faltas
+GET {{url_base}}/alunos-mais-faltas?limite=5

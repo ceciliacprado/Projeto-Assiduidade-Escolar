@@ -1,15 +1,39 @@
-@url_base = http://localhost:5268/api/turma
+@baseUrl = http://localhost:5268
+@authToken = 
 
-### Login como Professor (Admin)
-GET {{url_base}}/listar
-Content-Type: application/json
+### Testes da API de Turmas
 
+### 1. Listar Todas as Turmas
+GET {{baseUrl}}/api/turma/listar
 
-### Login como Aluno
-POST {{url_base}}/login
+### 2. Buscar Turma por ID
+GET {{baseUrl}}/api/turma/1
+
+### 3. Cadastrar Nova Turma
+POST {{baseUrl}}/api/turma/cadastrar
 Content-Type: application/json
 
 {
-    "email": "cecilia_love@email.com",
-    "senha": "123456"
-} 
+    "nome": "Turma D",
+    "ano": "2024",
+    "serie": "4º Ano"
+}
+
+### 4. Atualizar Turma
+PUT {{baseUrl}}/api/turma/1
+Content-Type: application/json
+
+{
+    "nome": "Turma A - Atualizada",
+    "ano": "2024",
+    "serie": "1º Ano"
+}
+
+### 5. Excluir Turma
+DELETE {{baseUrl}}/api/turma/4
+
+### 6. Listar Alunos de uma Turma
+GET {{baseUrl}}/api/turma/1/alunos
+
+### 7. Listar Disciplinas de uma Turma
+GET {{baseUrl}}/api/turma/1/disciplinas 
