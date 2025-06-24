@@ -8,8 +8,7 @@ import {
   Disciplina, 
   Frequencia,
   Turma,
-  VincularDisciplinaRequest,
-  StatusFrequencia
+  VincularDisciplinaRequest
 } from '../types';
 
 const api = axios.create({
@@ -44,9 +43,7 @@ api.interceptors.response.use(
 // Serviços de autenticação
 export const authService = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    // Usando o endpoint de login do professor
     const response = await api.post<string>('/professor/login', credentials);
-    // A API retorna apenas o token como string, então precisamos encapsular
     return { token: response.data };
   }
 };
@@ -63,28 +60,18 @@ export const turmaService = {
     return response.data;
   },
   
-  cadastrar: async (turma: Turma): Promise<Turma> => {
+  cadastrar: async (turma: Omit<Turma, 'id' | 'criadoEm'>): Promise<Turma> => {
     const response = await api.post<Turma>('/turma/cadastrar', turma);
     return response.data;
   },
   
-  atualizar: async (id: number, turma: Turma): Promise<Turma> => {
+  atualizar: async (id: number, turma: Omit<Turma, 'id' | 'criadoEm'>): Promise<Turma> => {
     const response = await api.put<Turma>(`/turma/${id}`, turma);
     return response.data;
   },
   
   excluir: async (id: number): Promise<void> => {
     await api.delete(`/turma/${id}`);
-  },
-  
-  listarAlunos: async (turmaId: number): Promise<Aluno[]> => {
-    const response = await api.get<Aluno[]>(`/turma/${turmaId}/alunos`);
-    return response.data;
-  },
-  
-  listarDisciplinas: async (turmaId: number): Promise<Disciplina[]> => {
-    const response = await api.get<Disciplina[]>(`/turma/${turmaId}/disciplinas`);
-    return response.data;
   }
 };
 
@@ -100,23 +87,18 @@ export const alunoService = {
     return response.data;
   },
   
-  cadastrar: async (aluno: Aluno): Promise<Aluno> => {
+  cadastrar: async (aluno: Omit<Aluno, 'id' | 'criadoEm' | 'turma' | 'disciplinas'>): Promise<Aluno> => {
     const response = await api.post<Aluno>('/aluno/cadastrar', aluno);
     return response.data;
   },
   
-  atualizar: async (id: number, aluno: Aluno): Promise<Aluno> => {
+  atualizar: async (id: number, aluno: Omit<Aluno, 'id' | 'criadoEm' | 'turma' | 'disciplinas'>): Promise<Aluno> => {
     const response = await api.put<Aluno>(`/aluno/${id}`, aluno);
     return response.data;
   },
   
   excluir: async (id: number): Promise<void> => {
     await api.delete(`/aluno/${id}`);
-  },
-  
-  vincularDisciplina: async (request: VincularDisciplinaRequest): Promise<Aluno> => {
-    const response = await api.post<Aluno>('/aluno/vincular-disciplina', request);
-    return response.data;
   },
   
   listarPorTurma: async (turmaId: number): Promise<Aluno[]> => {
@@ -132,12 +114,7 @@ export const professorService = {
     return response.data;
   },
   
-  buscarPorId: async (id: number): Promise<Professor> => {
-    const response = await api.get<Professor>(`/professor/${id}`);
-    return response.data;
-  },
-  
-  cadastrar: async (professor: Professor): Promise<Professor> => {
+  cadastrar: async (professor: Omit<Professor, 'id' | 'criadoEm' | 'role'>): Promise<Professor> => {
     const response = await api.post<Professor>('/professor/cadastrar', professor);
     return response.data;
   }
@@ -155,12 +132,12 @@ export const disciplinaService = {
     return response.data;
   },
   
-  cadastrar: async (disciplina: Disciplina): Promise<Disciplina> => {
+  cadastrar: async (disciplina: Omit<Disciplina, 'id' | 'criadoEm' | 'turma'>): Promise<Disciplina> => {
     const response = await api.post<Disciplina>('/disciplina/cadastrar', disciplina);
     return response.data;
   },
   
-  atualizar: async (id: number, disciplina: Disciplina): Promise<Disciplina> => {
+  atualizar: async (id: number, disciplina: Omit<Disciplina, 'id' | 'criadoEm' | 'turma'>): Promise<Disciplina> => {
     const response = await api.put<Disciplina>(`/disciplina/${id}`, disciplina);
     return response.data;
   },
@@ -171,11 +148,6 @@ export const disciplinaService = {
   
   listarPorTurma: async (turmaId: number): Promise<Disciplina[]> => {
     const response = await api.get<Disciplina[]>(`/disciplina/turma/${turmaId}`);
-    return response.data;
-  },
-  
-  listarPorProfessor: async (professorId: number): Promise<Disciplina[]> => {
-    const response = await api.get<Disciplina[]>(`/disciplina/professor/${professorId}`);
     return response.data;
   }
 };
@@ -192,12 +164,12 @@ export const frequenciaService = {
     return response.data;
   },
   
-  cadastrar: async (frequencia: Frequencia): Promise<Frequencia> => {
-    const response = await api.post<Frequencia>('/frequencia/cadastrar', frequencia);
+  registrar: async (frequencia: Omit<Frequencia, 'id' | 'criadoEm' | 'aluno' | 'disciplina'>): Promise<Frequencia> => {
+    const response = await api.post<Frequencia>('/frequencia/registrar', frequencia);
     return response.data;
   },
   
-  atualizar: async (id: number, frequencia: Frequencia): Promise<Frequencia> => {
+  atualizar: async (id: number, frequencia: Omit<Frequencia, 'id' | 'criadoEm' | 'aluno' | 'disciplina'>): Promise<Frequencia> => {
     const response = await api.put<Frequencia>(`/frequencia/${id}`, frequencia);
     return response.data;
   },
@@ -219,10 +191,6 @@ export const frequenciaService = {
   listarPorData: async (data: string): Promise<Frequencia[]> => {
     const response = await api.get<Frequencia[]>(`/frequencia/data/${data}`);
     return response.data;
-  },
-  
-  registrarLote: async (frequencias: Frequencia[]): Promise<void> => {
-    await api.post('/frequencia/registrar-lote', frequencias);
   }
 };
 

@@ -23,11 +23,10 @@ export interface Turma {
 export interface Aluno {
   id?: number;
   nome: string;
-  turmaId?: number;
+  turmaId: number;
   turma?: Turma;
-  disciplinaId?: number;
-  disciplina?: Disciplina;
   criadoEm?: string;
+  disciplinas?: Disciplina[];
 }
 
 export interface Professor {
@@ -36,7 +35,7 @@ export interface Professor {
   email: string;
   senha: string;
   especialidade: string;
-  role: string;
+  role?: string;
   criadoEm?: string;
 }
 
@@ -45,10 +44,8 @@ export interface Disciplina {
   nome: string;
   codigo: string;
   cargaHoraria: number;
-  turmaId?: number;
+  turmaId: number;
   turma?: Turma;
-  professorId?: number;
-  professor?: Professor;
   criadoEm?: string;
 }
 

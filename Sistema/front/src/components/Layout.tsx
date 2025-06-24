@@ -49,6 +49,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { text: 'Dashboard', icon: <HomeIcon />, path: '/' },
     { text: 'Alunos', icon: <GroupsIcon />, path: '/aluno/listar' },
     { text: 'Professores', icon: <PersonIcon />, path: '/professor/listar' },
+    { text: 'Turmas', icon: <GroupsIcon />, path: '/turma/listar' },
     { text: 'Disciplinas', icon: <LibraryBooksIcon />, path: '/disciplina/listar' },
     { text: 'Frequências', icon: <AnalyticsIcon />, path: '/frequencia/listar' },
   ];
@@ -82,8 +83,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       </List>
     </Box>
   );
-
-  console.log("caiu aqui pora", user)
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>

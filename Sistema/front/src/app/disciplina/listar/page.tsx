@@ -27,12 +27,12 @@ import {
 } from '@mui/icons-material';
 import { ProtectedRoute } from '../../../components/ProtectedRoute';
 import { Layout } from '../../../components/Layout';
-import { disciplinaService, professorService } from '../../../services/api';
-import { Disciplina, Professor } from '../../../types';
+import { disciplinaService, turmaService } from '../../../services/api';
+import { Disciplina, Turma } from '../../../types';
 
 export default function DisciplinasPage() {
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
-  const [professores, setProfessores] = useState<Professor[]>([]);
+  const [turmas, setTurmas] = useState<Turma[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
@@ -41,7 +41,7 @@ export default function DisciplinasPage() {
     nome: '',
     codigo: '',
     cargaHoraria: '',
-    professorId: ''
+    turmaId: ''
   });
 
   useEffect(() => {
@@ -50,12 +50,12 @@ export default function DisciplinasPage() {
 
   const fetchData = async () => {
     try {
-      const [disciplinasData, professoresData] = await Promise.all([
+      const [disciplinasData, turmasData] = await Promise.all([
         disciplinaService.listar(),
-        professorService.listar()
+        turmaService.listar()
       ]);
       setDisciplinas(disciplinasData);
-      setProfessores(professoresData);
+      setTurmas(turmasData);
     } catch (err: unknown) {
       console.error('Erro ao carregar dados:', err);
       setError('Erro ao carregar dados');
@@ -71,7 +71,7 @@ export default function DisciplinasPage() {
         nome: disciplina.nome,
         codigo: disciplina.codigo,
         cargaHoraria: disciplina.cargaHoraria.toString(),
-        professorId: disciplina.professorId?.toString() || ''
+        turmaId: disciplina.turmaId.toString()
       });
     } else {
       setEditingDisciplina(null);
@@ -79,7 +79,7 @@ export default function DisciplinasPage() {
         nome: '',
         codigo: '',
         cargaHoraria: '',
-        professorId: ''
+        turmaId: ''
       });
     }
     setOpenDialog(true);
@@ -92,18 +92,16 @@ export default function DisciplinasPage() {
 
   const handleSubmit = async () => {
     try {
-      const disciplinaData: Disciplina = {
-        ...formData,
+      const disciplinaData = {
+        nome: formData.nome,
+        codigo: formData.codigo,
         cargaHoraria: parseInt(formData.cargaHoraria),
-        professorId: formData.professorId ? parseInt(formData.professorId) : undefined
+        turmaId: parseInt(formData.turmaId)
       };
 
       if (editingDisciplina) {
-        // Atualizar disciplina existente
-        // Implementar quando a API tiver endpoint de atualização
-        setError('Funcionalidade de edição não implementada na API');
+        await disciplinaService.atualizar(editingDisciplina.id!, disciplinaData);
       } else {
-        // Criar nova disciplina
         await disciplinaService.cadastrar(disciplinaData);
       }
 
@@ -115,10 +113,9 @@ export default function DisciplinasPage() {
     }
   };
 
-  const getProfessorNome = (professorId?: number) => {
-    if (!professorId) return 'Não atribuído';
-    const professor = professores.find(p => p.id === professorId);
-    return professor?.nome || 'Professor não encontrado';
+  const getTurmaNome = (turmaId: number) => {
+    const turma = turmas.find(t => t.id === turmaId);
+    return turma?.nome || 'Turma não encontrada';
   };
 
   if (loading) {
@@ -163,7 +160,7 @@ export default function DisciplinasPage() {
                   <TableCell>Nome</TableCell>
                   <TableCell>Código</TableCell>
                   <TableCell>Carga Horária</TableCell>
-                  <TableCell>Professor</TableCell>
+                  <TableCell>Turma</TableCell>
                   <TableCell>Data de Cadastro</TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
@@ -174,7 +171,7 @@ export default function DisciplinasPage() {
                     <TableCell>{disciplina.nome}</TableCell>
                     <TableCell>{disciplina.codigo}</TableCell>
                     <TableCell>{disciplina.cargaHoraria}h</TableCell>
-                    <TableCell>{getProfessorNome(disciplina.professorId)}</TableCell>
+                    <TableCell>{getTurmaNome(disciplina.turmaId)}</TableCell>
                     <TableCell>
                       {disciplina.criadoEm ? new Date(disciplina.criadoEm).toLocaleDateString('pt-BR') : '-'}
                     </TableCell>
@@ -227,15 +224,15 @@ export default function DisciplinasPage() {
                 <TextField
                   select
                   fullWidth
-                  label="Professor"
-                  value={formData.professorId}
-                  onChange={(e) => setFormData({ ...formData, professorId: e.target.value })}
+                  label="Turma"
+                  value={formData.turmaId}
+                  onChange={(e) => setFormData({ ...formData, turmaId: e.target.value })}
                   margin="normal"
+                  required
                 >
-                  <option value="">Selecione um professor</option>
-                  {professores.map((professor) => (
-                    <option key={professor.id} value={professor.id}>
-                      {professor.nome} - {professor.especialidade}
+                  {turmas.map((turma) => (
+                    <option key={turma.id} value={turma.id}>
+                      {turma.nome} - {turma.serie}
                     </option>
                   ))}
                 </TextField>
