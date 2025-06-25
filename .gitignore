@@ -21,7 +21,6 @@ out/
 *.db
 *.db-shm
 *.db-wal
-migrations/
 
 # Test
 TestResults/
