@@ -85,7 +85,7 @@ export default function AlunosPage() {
 
   const fetchAlunosPorTurma = async (turmaId: number) => {
     try {
-      console.log('Carregando alunos da turma:', turmaId);
+      console.log('Iniciando fetchAlunosPorTurma com turmaId:', turmaId);
       const alunosData = await alunoService.listarPorTurma(turmaId);
       console.log('Alunos retornados:', alunosData);
       setAlunos(alunosData);
@@ -93,8 +93,8 @@ export default function AlunosPage() {
       console.error('Erro detalhado ao carregar alunos da turma:', err);
       console.error('Tipo do erro:', typeof err);
       console.error('Mensagem do erro:', (err as Error).message);
-      if ((err as { response?: unknown }).response) {
-        console.error('Response do erro:', (err as { response?: unknown }).response);
+      if ((err as any).response) {
+        console.error('Response do erro:', (err as any).response);
       }
       setError('Erro ao carregar alunos da turma');
     }
@@ -111,7 +111,7 @@ export default function AlunosPage() {
       setEditingAluno(null);
       setFormData({
         nome: '',
-        turmaId: selectedTurmaId || ''
+        turmaId: ''
       });
     }
     setOpenDialog(true);
@@ -120,12 +120,28 @@ export default function AlunosPage() {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditingAluno(null);
+    setFormData({
+      nome: '',
+      turmaId: ''
+    });
+    setError(''); // Limpar erros ao fechar o dialog
   };
 
   const handleSubmit = async () => {
     try {
+      // Validação dos campos
+      if (!formData.nome.trim()) {
+        setError('Nome do aluno é obrigatório');
+        return;
+      }
+      
+      if (!formData.turmaId) {
+        setError('Selecione uma turma');
+        return;
+      }
+
       const alunoData = {
-        nome: formData.nome,
+        nome: formData.nome.trim(),
         turmaId: parseInt(formData.turmaId)
       };
 
@@ -142,6 +158,7 @@ export default function AlunosPage() {
         fetchAlunos();
       }
       
+      setError(''); // Limpar erros
       handleCloseDialog();
     } catch (err: unknown) {
       const error = err as { response?: { data?: { mensagem?: string } } };
@@ -154,11 +171,10 @@ export default function AlunosPage() {
     return turma?.nome || 'Turma não encontrada';
   };
 
-  const getDisciplinasCount = () => {
-    return 0; // Alunos não têm mais disciplinas diretamente
+  const getDisciplinasCount = (aluno: Aluno) => {
+    return aluno.contagemDisciplinas || 0;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleTurmaChange = (event: any) => {
     setSelectedTurmaId(event.target.value);
   };
@@ -266,7 +282,7 @@ export default function AlunosPage() {
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={`${getDisciplinasCount()} disciplinas`}
+                          label={`${getDisciplinasCount(aluno)} disciplinas`}
                           color="secondary"
                           size="small"
                         />
@@ -293,6 +309,11 @@ export default function AlunosPage() {
             </DialogTitle>
             <DialogContent>
               <Box sx={{ pt: 1 }}>
+                {error && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                  </Alert>
+                )}
                 <TextField
                   fullWidth
                   label="Nome"
@@ -301,26 +322,29 @@ export default function AlunosPage() {
                   margin="normal"
                   required
                 />
-                <TextField
-                  select
-                  fullWidth
-                  label="Turma"
-                  value={formData.turmaId}
-                  onChange={(e) => setFormData({ ...formData, turmaId: e.target.value })}
-                  margin="normal"
-                  required
-                >
-                  {turmas.map((turma) => (
-                    <option key={turma.id} value={turma.id}>
-                      {turma.nome} - {turma.serie}
-                    </option>
-                  ))}
-                </TextField>
+                <FormControl fullWidth margin="normal" required>
+                  <InputLabel>Turma</InputLabel>
+                  <Select
+                    value={formData.turmaId}
+                    label="Turma"
+                    onChange={(e) => setFormData({ ...formData, turmaId: e.target.value })}
+                  >
+                    {turmas.map((turma) => (
+                      <MenuItem key={turma.id} value={turma.id}>
+                        {turma.nome} - {turma.serie}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
             </DialogContent>
             <DialogActions>
               <Button onClick={handleCloseDialog}>Cancelar</Button>
-              <Button onClick={handleSubmit} variant="contained">
+              <Button 
+                onClick={handleSubmit} 
+                variant="contained"
+                disabled={!formData.nome.trim() || !formData.turmaId}
+              >
                 {editingAluno ? 'Atualizar' : 'Cadastrar'}
               </Button>
             </DialogActions>

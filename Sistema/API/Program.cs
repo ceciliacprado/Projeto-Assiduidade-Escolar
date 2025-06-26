@@ -93,6 +93,7 @@ builder.Services.AddScoped<IFrequenciaRepository, FrequenciaRepository>();
 builder.Services.AddScoped<IDisciplinaRepository, DisciplinaRepository>();
 
 // Registro dos Services
+builder.Services.AddScoped<IAlunoService, AlunoService>();
 builder.Services.AddScoped<IDataInitializationService, DataInitializationService>();
 
 // Configuração da Autenticação JWT

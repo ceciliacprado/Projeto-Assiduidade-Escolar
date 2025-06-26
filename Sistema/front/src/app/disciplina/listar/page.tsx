@@ -19,7 +19,11 @@ import {
   DialogActions,
   TextField,
   Alert,
-  CircularProgress
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -35,6 +39,7 @@ export default function DisciplinasPage() {
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingDisciplina, setEditingDisciplina] = useState<Disciplina | null>(null);
   const [formData, setFormData] = useState({
@@ -82,30 +87,63 @@ export default function DisciplinasPage() {
         turmaId: ''
       });
     }
+    setError(''); // Limpar erros ao abrir
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditingDisciplina(null);
+    setFormData({
+      nome: '',
+      codigo: '',
+      cargaHoraria: '',
+      turmaId: ''
+    });
+    setError(''); // Limpar erros ao fechar
+    setSuccess(''); // Limpar sucesso ao fechar
   };
 
   const handleSubmit = async () => {
     try {
+      // Validação dos campos
+      if (!formData.nome.trim()) {
+        setError('Nome da disciplina é obrigatório');
+        return;
+      }
+      
+      if (!formData.codigo.trim()) {
+        setError('Código da disciplina é obrigatório');
+        return;
+      }
+      
+      if (!formData.cargaHoraria || parseInt(formData.cargaHoraria) <= 0) {
+        setError('Carga horária deve ser maior que zero');
+        return;
+      }
+      
+      if (!formData.turmaId) {
+        setError('Selecione uma turma');
+        return;
+      }
+
       const disciplinaData = {
-        nome: formData.nome,
-        codigo: formData.codigo,
+        nome: formData.nome.trim(),
+        codigo: formData.codigo.trim(),
         cargaHoraria: parseInt(formData.cargaHoraria),
         turmaId: parseInt(formData.turmaId)
       };
 
       if (editingDisciplina) {
         await disciplinaService.atualizar(editingDisciplina.id!, disciplinaData);
+        setSuccess('Disciplina atualizada com sucesso!');
       } else {
-        await disciplinaService.cadastrar(disciplinaData);
+        const resultado = await disciplinaService.cadastrar(disciplinaData);
+        setSuccess(resultado.mensagem);
       }
 
       fetchData();
+      setError(''); // Limpar erros
       handleCloseDialog();
     } catch (err: unknown) {
       const error = err as { response?: { data?: { mensagem?: string } } };
@@ -153,6 +191,12 @@ export default function DisciplinasPage() {
             </Alert>
           )}
 
+          {success && (
+            <Alert severity="success" sx={{ mb: 3 }}>
+              {success}
+            </Alert>
+          )}
+
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
@@ -196,6 +240,11 @@ export default function DisciplinasPage() {
             </DialogTitle>
             <DialogContent>
               <Box sx={{ pt: 1 }}>
+                {error && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                  </Alert>
+                )}
                 <TextField
                   fullWidth
                   label="Nome"
@@ -221,26 +270,29 @@ export default function DisciplinasPage() {
                   margin="normal"
                   required
                 />
-                <TextField
-                  select
-                  fullWidth
-                  label="Turma"
-                  value={formData.turmaId}
-                  onChange={(e) => setFormData({ ...formData, turmaId: e.target.value })}
-                  margin="normal"
-                  required
-                >
-                  {turmas.map((turma) => (
-                    <option key={turma.id} value={turma.id}>
-                      {turma.nome} - {turma.serie}
-                    </option>
-                  ))}
-                </TextField>
+                <FormControl fullWidth margin="normal" required>
+                  <InputLabel>Turma</InputLabel>
+                  <Select
+                    value={formData.turmaId}
+                    label="Turma"
+                    onChange={(e) => setFormData({ ...formData, turmaId: e.target.value })}
+                  >
+                    {turmas.map((turma) => (
+                      <MenuItem key={turma.id} value={turma.id}>
+                        {turma.nome} - {turma.serie}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
             </DialogContent>
             <DialogActions>
               <Button onClick={handleCloseDialog}>Cancelar</Button>
-              <Button onClick={handleSubmit} variant="contained">
+              <Button 
+                onClick={handleSubmit} 
+                variant="contained"
+                disabled={!formData.nome.trim() || !formData.codigo.trim() || !formData.cargaHoraria || !formData.turmaId}
+              >
                 {editingDisciplina ? 'Atualizar' : 'Cadastrar'}
               </Button>
             </DialogActions>

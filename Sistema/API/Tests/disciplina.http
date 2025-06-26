@@ -1,15 +1,19 @@
 @baseUrl = http://localhost:5268
-@authToken = 
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZXNjb2xhLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibm9tZSI6IkFkbWluaXN0cmFkb3IiLCJlbWFpbCI6ImFkbWluQGVzY29sYS5jb20iLCJleHAiOjE3NTA5Nzk1Nzh9.SWs01gj3sjkOgfi7YsafuJeeS0FalEd5kvhp4inaT4E
 
-### Testes da API de Disciplinas
+### ========================================
+### TESTES DA API DE DISCIPLINAS
+### ========================================
 
 ### 1. Listar Todas as Disciplinas
 GET {{baseUrl}}/api/disciplina/listar
+Authorization: Bearer {{authToken}}
 
 ### 2. Buscar Disciplina por ID
 GET {{baseUrl}}/api/disciplina/1
+Authorization: Bearer {{authToken}}
 
-### 3. Cadastrar Nova Disciplina
+### 3. Cadastrar Nova Disciplina (deve vincular alunos automaticamente)
 POST {{baseUrl}}/api/disciplina/cadastrar
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
@@ -39,11 +43,17 @@ Authorization: Bearer {{authToken}}
 
 ### 6. Listar Disciplinas por Turma
 GET {{baseUrl}}/api/disciplina/turma/1
+Authorization: Bearer {{authToken}}
 
-### 7. Buscar Disciplina por Código
-GET {{baseUrl}}/api/disciplina/codigo/MAT001
+### 7. Listar Disciplinas por Professor
+GET {{baseUrl}}/api/disciplina/professor/1
+Authorization: Bearer {{authToken}}
 
-### 8. Cadastrar Disciplina com Código Duplicado (deve falhar)
+### 8. Vincular Alunos Existentes a Disciplina Existente
+POST {{baseUrl}}/api/disciplina/vincular-alunos-existente/1
+Authorization: Bearer {{authToken}}
+
+### 9. Teste de Cadastro com Código Duplicado (deve falhar)
 POST {{baseUrl}}/api/disciplina/cadastrar
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
@@ -54,3 +64,145 @@ Authorization: Bearer {{authToken}}
     "cargaHoraria": 80,
     "turmaId": 1
 }
+
+### 10. Teste de Cadastro sem Nome (deve falhar)
+POST {{baseUrl}}/api/disciplina/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "codigo": "TEST001",
+    "cargaHoraria": 60,
+    "turmaId": 1
+}
+
+### 11. Teste de Cadastro sem Código (deve falhar)
+POST {{baseUrl}}/api/disciplina/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Disciplina sem Código",
+    "cargaHoraria": 60,
+    "turmaId": 1
+}
+
+### 12. Teste de Cadastro com Carga Horária Zero (deve falhar)
+POST {{baseUrl}}/api/disciplina/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Disciplina Carga Zero",
+    "codigo": "ZERO001",
+    "cargaHoraria": 0,
+    "turmaId": 1
+}
+
+### 13. Teste de Cadastro com Carga Horária Negativa (deve falhar)
+POST {{baseUrl}}/api/disciplina/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Disciplina Carga Negativa",
+    "codigo": "NEG001",
+    "cargaHoraria": -10,
+    "turmaId": 1
+}
+
+### 14. Teste de Cadastro com Turma Inexistente (deve falhar)
+POST {{baseUrl}}/api/disciplina/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Disciplina Turma Inexistente",
+    "codigo": "TURMA001",
+    "cargaHoraria": 60,
+    "turmaId": 999
+}
+
+### 15. Teste de Atualização de Disciplina Inexistente (deve falhar)
+PUT {{baseUrl}}/api/disciplina/999
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Disciplina Inexistente",
+    "codigo": "INEX001",
+    "cargaHoraria": 60,
+    "turmaId": 1
+}
+
+### 16. Teste de Exclusão de Disciplina Inexistente (deve falhar)
+DELETE {{baseUrl}}/api/disciplina/999
+Authorization: Bearer {{authToken}}
+
+### 17. Teste de Busca de Disciplina Inexistente (deve falhar)
+GET {{baseUrl}}/api/disciplina/999
+Authorization: Bearer {{authToken}}
+
+### 18. Teste de Mudança de Turma (deve remover frequências antigas e criar novas)
+PUT {{baseUrl}}/api/disciplina/1
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Matemática - Mudança de Turma",
+    "codigo": "MAT001",
+    "cargaHoraria": 100,
+    "turmaId": 2
+}
+
+### 19. Cadastrar Múltiplas Disciplinas
+POST {{baseUrl}}/api/disciplina/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "História",
+    "codigo": "HIST001",
+    "cargaHoraria": 80,
+    "turmaId": 1
+}
+
+###
+POST {{baseUrl}}/api/disciplina/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Ciências",
+    "codigo": "CIEN001",
+    "cargaHoraria": 90,
+    "turmaId": 1
+}
+
+###
+POST {{baseUrl}}/api/disciplina/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Português",
+    "codigo": "PORT001",
+    "cargaHoraria": 120,
+    "turmaId": 2
+}
+
+### 20. Verificar se Alunos foram Vinculados às Novas Disciplinas
+GET {{baseUrl}}/api/aluno/turma/1
+Authorization: Bearer {{authToken}}
+
+### 21. Teste de Listagem de Disciplinas por Turma Inexistente
+GET {{baseUrl}}/api/disciplina/turma/999
+Authorization: Bearer {{authToken}}
+
+### 22. Teste de Listagem de Disciplinas por Professor Inexistente
+GET {{baseUrl}}/api/disciplina/professor/999
+Authorization: Bearer {{authToken}}
+
+### 23. Teste de Vinculação de Alunos a Disciplina Inexistente (deve falhar)
+POST {{baseUrl}}/api/disciplina/vincular-alunos-existente/999
+Authorization: Bearer {{authToken}}

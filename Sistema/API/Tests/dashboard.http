@@ -1,0 +1,304 @@
+@baseUrl = http://localhost:5268
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZXNjb2xhLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibm9tZSI6IkFkbWluaXN0cmFkb3IiLCJlbWFpbCI6ImFkbWluQGVzY29sYS5jb20iLCJleHAiOjE3NTA5Nzk1Nzh9.SWs01gj3sjkOgfi7YsafuJeeS0FalEd5kvhp4inaT4E
+
+### ========================================
+### TESTES DA API DE DASHBOARD E FUNCIONALIDADES ESPECÍFICAS
+### ========================================
+
+### 1. Teste de Conexão com Banco de Dados
+GET {{baseUrl}}/api/aluno/teste-banco
+Authorization: Bearer {{authToken}}
+
+### 2. Obter Dados para Dashboard (Turma com Alunos e Disciplinas)
+GET {{baseUrl}}/api/turma/1
+Authorization: Bearer {{authToken}}
+
+### 3. Listar Alunos por Turma (para Dashboard)
+GET {{baseUrl}}/api/aluno/turma/1
+Authorization: Bearer {{authToken}}
+
+### 4. Listar Disciplinas por Turma (para Dashboard)
+GET {{baseUrl}}/api/disciplina/turma/1
+Authorization: Bearer {{authToken}}
+
+### 5. Registrar Frequência em Lote (para Dashboard)
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "data": "2024-01-20",
+    "frequencias": [
+        {
+            "alunoId": 1,
+            "disciplinaId": 1,
+            "presente": true
+        },
+        {
+            "alunoId": 1,
+            "disciplinaId": 2,
+            "presente": false
+        },
+        {
+            "alunoId": 2,
+            "disciplinaId": 1,
+            "presente": true
+        },
+        {
+            "alunoId": 2,
+            "disciplinaId": 2,
+            "presente": true
+        }
+    ]
+}
+
+### 6. Verificar Frequências por Data (para Dashboard)
+GET {{baseUrl}}/api/frequencia/data/2024-01-20
+Authorization: Bearer {{authToken}}
+
+### 7. Vincular Alunos Existentes a Disciplina (para casos onde alunos já existiam)
+POST {{baseUrl}}/api/disciplina/vincular-alunos-existente/1
+Authorization: Bearer {{authToken}}
+
+### 8. Teste de Fluxo Completo: Criar Turma -> Alunos -> Disciplinas -> Frequências
+
+### 8.1. Criar Nova Turma
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma Teste Dashboard",
+    "ano": "2024",
+    "serie": "7º Ano"
+}
+
+### 8.2. Criar Alunos na Turma
+POST {{baseUrl}}/api/aluno/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Aluno Dashboard 1",
+    "turmaId": 5
+}
+
+###
+POST {{baseUrl}}/api/aluno/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Aluno Dashboard 2",
+    "turmaId": 5
+}
+
+### 8.3. Criar Disciplinas na Turma (deve vincular alunos automaticamente)
+POST {{baseUrl}}/api/disciplina/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Matemática Dashboard",
+    "codigo": "MAT-DASH",
+    "cargaHoraria": 80,
+    "turmaId": 5
+}
+
+###
+POST {{baseUrl}}/api/disciplina/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Português Dashboard",
+    "codigo": "PORT-DASH",
+    "cargaHoraria": 90,
+    "turmaId": 5
+}
+
+### 8.4. Verificar Dados da Turma Criada
+GET {{baseUrl}}/api/turma/5
+Authorization: Bearer {{authToken}}
+
+### 8.5. Verificar Alunos da Turma
+GET {{baseUrl}}/api/aluno/turma/5
+Authorization: Bearer {{authToken}}
+
+### 8.6. Verificar Disciplinas da Turma
+GET {{baseUrl}}/api/disciplina/turma/5
+Authorization: Bearer {{authToken}}
+
+### 8.7. Registrar Frequências para a Turma
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "data": "2024-01-21",
+    "frequencias": [
+        {
+            "alunoId": 5,
+            "disciplinaId": 5,
+            "presente": true
+        },
+        {
+            "alunoId": 5,
+            "disciplinaId": 6,
+            "presente": true
+        },
+        {
+            "alunoId": 6,
+            "disciplinaId": 5,
+            "presente": false
+        },
+        {
+            "alunoId": 6,
+            "disciplinaId": 6,
+            "presente": true
+        }
+    ]
+}
+
+### 8.8. Verificar Frequências Registradas
+GET {{baseUrl}}/api/frequencia/data/2024-01-21
+Authorization: Bearer {{authToken}}
+
+### 9. Teste de Mudança de Turma (deve atualizar frequências)
+
+### 9.1. Mudar Aluno de Turma
+PUT {{baseUrl}}/api/aluno/5
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Aluno Dashboard 1 - Mudança",
+    "turmaId": 1
+}
+
+### 9.2. Verificar se Frequências foram Atualizadas
+GET {{baseUrl}}/api/aluno/turma/1
+Authorization: Bearer {{authToken}}
+
+### 10. Teste de Mudança de Turma de Disciplina (deve atualizar frequências)
+
+### 10.1. Mudar Disciplina de Turma
+PUT {{baseUrl}}/api/disciplina/5
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Matemática Dashboard - Mudança",
+    "codigo": "MAT-DASH",
+    "cargaHoraria": 80,
+    "turmaId": 1
+}
+
+### 10.2. Verificar se Frequências foram Atualizadas
+GET {{baseUrl}}/api/disciplina/turma/1
+Authorization: Bearer {{authToken}}
+
+### 11. Teste de Exclusão em Cascata
+
+### 11.1. Excluir Aluno (deve remover frequências)
+DELETE {{baseUrl}}/api/aluno/6
+Authorization: Bearer {{authToken}}
+
+### 11.2. Verificar se Frequências foram Removidas
+GET {{baseUrl}}/api/frequencia/aluno/6
+Authorization: Bearer {{authToken}}
+
+### 11.3. Excluir Disciplina (deve remover frequências)
+DELETE {{baseUrl}}/api/disciplina/6
+Authorization: Bearer {{authToken}}
+
+### 11.4. Verificar se Frequências foram Removidas
+GET {{baseUrl}}/api/frequencia/disciplina/6
+Authorization: Bearer {{authToken}}
+
+### 12. Teste de Validações de Negócio
+
+### 12.1. Tentar Registrar Frequência para Aluno que Não Pertence à Disciplina
+POST {{baseUrl}}/api/frequencia/registrar
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "alunoId": 1,
+    "disciplinaId": 5,
+    "data": "2024-01-22",
+    "presente": true
+}
+
+### 12.2. Tentar Registrar Frequência para Data Passada
+POST {{baseUrl}}/api/frequencia/registrar
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "alunoId": 1,
+    "disciplinaId": 1,
+    "data": "2020-01-01",
+    "presente": true
+}
+
+### 13. Teste de Performance
+
+### 13.1. Listar Todas as Turmas
+GET {{baseUrl}}/api/turma/listar
+Authorization: Bearer {{authToken}}
+
+### 13.2. Listar Todos os Alunos
+GET {{baseUrl}}/api/aluno/listar
+Authorization: Bearer {{authToken}}
+
+### 13.3. Listar Todas as Disciplinas
+GET {{baseUrl}}/api/disciplina/listar
+Authorization: Bearer {{authToken}}
+
+### 13.4. Listar Todas as Frequências
+GET {{baseUrl}}/api/frequencia/listar
+Authorization: Bearer {{authToken}}
+
+### 14. Teste de Autenticação e Autorização
+
+### 14.1. Tentar Acessar sem Token
+GET {{baseUrl}}/api/turma/listar
+
+### 14.2. Tentar Acessar com Token Inválido
+GET {{baseUrl}}/api/turma/listar
+Authorization: Bearer token-invalido
+
+### 14.3. Tentar Acessar com Token Expirado
+GET {{baseUrl}}/api/turma/listar
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZXNjb2xhLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibm9tZSI6IkFkbWluaXN0cmFkb3IiLCJlbWFpbCI6ImFkbWluQGVzY29sYS5jb20iLCJleHAiOjE3MDAwMDAwMDB9.token-expirado
+
+### 15. Teste de Dados de Relacionamento
+
+### 15.1. Verificar Aluno com Turma
+GET {{baseUrl}}/api/aluno/1
+Authorization: Bearer {{authToken}}
+
+### 15.2. Verificar Disciplina com Turma e Professor
+GET {{baseUrl}}/api/disciplina/1
+Authorization: Bearer {{authToken}}
+
+### 15.3. Verificar Frequência com Aluno e Disciplina
+GET {{baseUrl}}/api/frequencia/1
+Authorization: Bearer {{authToken}}
+
+### 16. Teste de Limpeza de Dados
+
+### 16.1. Excluir Turma de Teste
+DELETE {{baseUrl}}/api/turma/5
+Authorization: Bearer {{authToken}}
+
+### 16.2. Verificar se Dados Relacionados foram Removidos
+GET {{baseUrl}}/api/turma/5
+Authorization: Bearer {{authToken}}
+
+GET {{baseUrl}}/api/aluno/turma/5
+Authorization: Bearer {{authToken}}
+
+GET {{baseUrl}}/api/disciplina/turma/5
+Authorization: Bearer {{authToken}} 

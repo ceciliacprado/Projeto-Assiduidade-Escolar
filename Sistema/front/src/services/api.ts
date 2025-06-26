@@ -7,7 +7,8 @@ import {
   Professor, 
   Disciplina, 
   Frequencia,
-  Turma
+  Turma,
+  VincularDisciplinaRequest
 } from '../types';
 
 const api = axios.create({
@@ -146,8 +147,8 @@ export const disciplinaService = {
     return response.data;
   },
   
-  cadastrar: async (disciplina: Omit<Disciplina, 'id' | 'criadoEm' | 'turma'>): Promise<Disciplina> => {
-    const response = await api.post<Disciplina>('/disciplina/cadastrar', disciplina);
+  cadastrar: async (disciplina: Omit<Disciplina, 'id' | 'criadoEm' | 'turma'>): Promise<{ disciplina: Disciplina; alunosVinculados: number; mensagem: string }> => {
+    const response = await api.post<{ disciplina: Disciplina; alunosVinculados: number; mensagem: string }>('/disciplina/cadastrar', disciplina);
     return response.data;
   },
   
@@ -162,6 +163,11 @@ export const disciplinaService = {
   
   listarPorTurma: async (turmaId: number): Promise<Disciplina[]> => {
     const response = await api.get<Disciplina[]>(`/disciplina/turma/${turmaId}`);
+    return response.data;
+  },
+  
+  vincularAlunosExistente: async (disciplinaId: number): Promise<{ mensagem: string; disciplina: string; totalVinculados: number; totalAlunos: number }> => {
+    const response = await api.post<{ mensagem: string; disciplina: string; totalVinculados: number; totalAlunos: number }>(`/disciplina/vincular-alunos-existente/${disciplinaId}`);
     return response.data;
   }
 };
@@ -207,8 +213,8 @@ export const frequenciaService = {
     return response.data;
   },
   
-  registrarLote: async (frequencias: Omit<Frequencia, 'id' | 'criadoEm' | 'aluno' | 'disciplina'>[]): Promise<{ mensagem: string }> => {
-    const response = await api.post<{ mensagem: string }>('/frequencia/registrar-lote', frequencias);
+  registrarLote: async (frequencias: Omit<Frequencia, 'id' | 'criadoEm' | 'aluno' | 'disciplina'>[]): Promise<any> => {
+    const response = await api.post<any>('/frequencia/registrar-lote', frequencias);
     return response.data;
   }
 };

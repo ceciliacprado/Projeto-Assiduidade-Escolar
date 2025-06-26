@@ -1,7 +1,9 @@
 @baseUrl = http://localhost:5268
-@authToken = 
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZXNjb2xhLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibm9tZSI6IkFkbWluaXN0cmFkb3IiLCJlbWFpbCI6ImFkbWluQGVzY29sYS5jb20iLCJleHAiOjE3NTA5Nzk1Nzh9.SWs01gj3sjkOgfi7YsafuJeeS0FalEd5kvhp4inaT4E
 
-### Testes da API de Professores
+### ========================================
+### TESTES DA API DE PROFESSORES
+### ========================================
 
 ### 1. Login do Professor Administrador
 POST {{baseUrl}}/api/professor/login
@@ -32,6 +34,7 @@ Content-Type: application/json
 
 ### 4. Listar Todos os Professores
 GET {{baseUrl}}/api/professor/listar
+Authorization: Bearer {{authToken}}
 
 ### 5. Cadastrar Novo Professor (requer autenticação)
 POST {{baseUrl}}/api/professor/cadastrar
@@ -52,4 +55,263 @@ Content-Type: application/json
 {
     "email": "email.invalido@teste.com",
     "senha": "senhaerrada"
+}
+
+### 7. Teste de Login sem Email (deve falhar)
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "senha": "123456"
+}
+
+### 8. Teste de Login sem Senha (deve falhar)
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "admin@escola.com"
+}
+
+### 9. Teste de Login com Email Vazio (deve falhar)
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "",
+    "senha": "123456"
+}
+
+### 10. Teste de Login com Senha Vazia (deve falhar)
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "admin@escola.com",
+    "senha": ""
+}
+
+### 11. Teste de Cadastro de Professor sem Nome (deve falhar)
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "email": "sem.nome@escola.com",
+    "senha": "123456",
+    "especialidade": "Teste"
+}
+
+### 12. Teste de Cadastro de Professor sem Email (deve falhar)
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Professor sem Email",
+    "senha": "123456",
+    "especialidade": "Teste"
+}
+
+### 13. Teste de Cadastro de Professor sem Senha (deve falhar)
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Professor sem Senha",
+    "email": "sem.senha@escola.com",
+    "especialidade": "Teste"
+}
+
+### 14. Teste de Cadastro de Professor com Email Duplicado (deve falhar)
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Professor Duplicado",
+    "email": "admin@escola.com",
+    "senha": "123456",
+    "especialidade": "Teste"
+}
+
+### 15. Teste de Cadastro de Professor sem Authorization (deve falhar)
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+
+{
+    "nome": "Professor sem Auth",
+    "email": "sem.auth@escola.com",
+    "senha": "123456",
+    "especialidade": "Teste"
+}
+
+### 16. Teste de Listagem de Professores sem Authorization (deve falhar)
+GET {{baseUrl}}/api/professor/listar
+
+### 17. Cadastrar Múltiplos Professores
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Ana Costa",
+    "email": "ana.costa@escola.com",
+    "senha": "123456",
+    "especialidade": "História"
+}
+
+###
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Carlos Lima",
+    "email": "carlos.lima@escola.com",
+    "senha": "123456",
+    "especialidade": "Ciências"
+}
+
+###
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Fernanda Santos",
+    "email": "fernanda.santos@escola.com",
+    "senha": "123456",
+    "especialidade": "Português"
+}
+
+### 18. Teste de Login com Email em Formato Inválido (deve falhar)
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "email-invalido",
+    "senha": "123456"
+}
+
+### 19. Teste de Cadastro com Email em Formato Inválido (deve falhar)
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Professor Email Inválido",
+    "email": "email-invalido",
+    "senha": "123456",
+    "especialidade": "Teste"
+}
+
+### 20. Teste de Cadastro com Senha Muito Curta (deve falhar)
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Professor Senha Curta",
+    "email": "senha.curta@escola.com",
+    "senha": "123",
+    "especialidade": "Teste"
+}
+
+### 21. Teste de Login com Credenciais de Professor Recém-Cadastrado
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "pedro.oliveira@escola.com",
+    "senha": "123456"
+}
+
+### 22. Verificar Lista de Professores Após Cadastros
+GET {{baseUrl}}/api/professor/listar
+Authorization: Bearer {{authToken}}
+
+### 23. Teste de Login com Email que Não Existe
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "nao.existe@escola.com",
+    "senha": "123456"
+}
+
+### 24. Teste de Login com Senha Incorreta para Email Existente
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "admin@escola.com",
+    "senha": "senha-incorreta"
+}
+
+### 25. Teste de Cadastro com Nome Muito Longo
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Professor com Nome Muito Longo que Pode Causar Problemas na Validação do Banco de Dados",
+    "email": "nome.longo@escola.com",
+    "senha": "123456",
+    "especialidade": "Teste"
+}
+
+### 26. Teste de Cadastro com Especialidade Vazia
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Professor sem Especialidade",
+    "email": "sem.especialidade@escola.com",
+    "senha": "123456",
+    "especialidade": ""
+}
+
+### 27. Teste de Cadastro com Caracteres Especiais no Nome
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "João-Pedro Silva & Santos",
+    "email": "joao.pedro@escola.com",
+    "senha": "123456",
+    "especialidade": "Matemática"
+}
+
+### 28. Teste de Login com Espaços Extras no Email
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "  admin@escola.com  ",
+    "senha": "123456"
+}
+
+### 29. Teste de Login com Espaços Extras na Senha
+POST {{baseUrl}}/api/professor/login
+Content-Type: application/json
+
+{
+    "email": "admin@escola.com",
+    "senha": "  123456  "
+}
+
+### 30. Teste de Cadastro com Dados Mínimos
+POST {{baseUrl}}/api/professor/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Min",
+    "email": "min@escola.com",
+    "senha": "123456",
+    "especialidade": "Min"
 }

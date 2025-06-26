@@ -28,6 +28,7 @@ export interface Aluno {
   turmaId: number;
   turma?: Turma;
   criadoEm?: string;
+  contagemDisciplinas?: number;
 }
 
 export interface Professor {

@@ -20,6 +20,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Paper,
   Chip,
   IconButton,
   Dialog,
@@ -29,15 +30,28 @@ import {
 } from '@mui/material';
 import {
   School as SchoolIcon,
+  Person as PersonIcon,
   Book as BookIcon,
+  Assessment as AssessmentIcon,
   Save as SaveIcon,
   CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon
+  Cancel as CancelIcon,
+  Schedule as ScheduleIcon,
+  Notifications as NotificationsIcon,
+  Email as EmailIcon,
+  AccountCircle as AccountCircleIcon
 } from '@mui/icons-material';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { Layout } from '../components/Layout';
-import { alunoService, disciplinaService, frequenciaService, turmaService } from '../services/api';
-import { Disciplina, Turma } from '../types';
+import { alunoService, professorService, disciplinaService, frequenciaService, turmaService } from '../services/api';
+import { Aluno, Disciplina, Frequencia, Turma } from '../types';
+
+interface DashboardStats {
+  totalAlunos: number;
+  totalProfessores: number;
+  totalDisciplinas: number;
+  totalFrequencias: number;
+}
 
 interface StudentAttendance {
   id: number;
@@ -46,6 +60,9 @@ interface StudentAttendance {
 }
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [alunos, setAlunos] = useState<Aluno[]>([]);
+  const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -57,12 +74,29 @@ export default function DashboardPage() {
   
   // Estados para dados filtrados
   const [disciplinasFiltradas, setDisciplinasFiltradas] = useState<Disciplina[]>([]);
+  const [alunosFiltrados, setAlunosFiltrados] = useState<Aluno[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const turmasData = await turmaService.listar();
+        const [alunosData, professores, disciplinasData, frequencias, turmasData] = await Promise.all([
+          alunoService.listar(),
+          professorService.listar(),
+          disciplinaService.listar(),
+          frequenciaService.listar(),
+          turmaService.listar()
+        ]);
+
+        setAlunos(alunosData);
+        setDisciplinas(disciplinasData);
         setTurmas(turmasData);
+
+        setStats({
+          totalAlunos: alunosData.length,
+          totalProfessores: professores.length,
+          totalDisciplinas: disciplinasData.length,
+          totalFrequencias: frequencias.length
+        });
       } catch (err: unknown) {
         console.error('Erro ao carregar dashboard:', err);
         setError('Erro ao carregar dados');
@@ -96,21 +130,27 @@ export default function DashboardPage() {
         setDisciplinasFiltradas(disciplinasDaTurma);
         
         // Definir alunos da turma
-        setStudentAttendance(alunosDaTurma.map(aluno => ({
+        setAlunosFiltrados(alunosDaTurma);
+        
+        // Inicializar lista de presença
+        const attendanceList = alunosDaTurma.map(aluno => ({
           id: aluno.id || 0,
           name: aluno.nome,
           status: 'present' as const
-        })));
+        }));
+        setStudentAttendance(attendanceList);
         
         setError(''); // Limpar erros anteriores
       } catch (err) {
         console.error('Erro ao carregar dados da turma:', err);
         setError('Erro ao carregar dados da turma selecionada');
         setDisciplinasFiltradas([]);
+        setAlunosFiltrados([]);
         setStudentAttendance([]);
       }
     } else {
       setDisciplinasFiltradas([]);
+      setAlunosFiltrados([]);
       setStudentAttendance([]);
     }
     
@@ -155,7 +195,7 @@ export default function DashboardPage() {
     }
   };
 
-  const getStatusColor = (status: string): 'success' | 'error' | 'warning' | 'default' => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'present':
         return 'success';
@@ -391,7 +431,7 @@ export default function DashboardPage() {
                         <TableCell>
                           <Chip
                             label={getStatusText(student.status)}
-                            color={getStatusColor(student.status)}
+                            color={getStatusColor(student.status) as any}
                             size="small"
                           />
                         </TableCell>

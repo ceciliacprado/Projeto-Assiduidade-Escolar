@@ -1,22 +1,22 @@
 @baseUrl = http://localhost:5268
 @authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZXNjb2xhLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibm9tZSI6IkFkbWluaXN0cmFkb3IiLCJlbWFpbCI6ImFkbWluQGVzY29sYS5jb20iLCJleHAiOjE3NTA5Nzk1Nzh9.SWs01gj3sjkOgfi7YsafuJeeS0FalEd5kvhp4inaT4E
 
-### Testes da API de Turmas
+### ========================================
+### TESTES DA API DE TURMAS
+### ========================================
 
 ### 1. Listar Todas as Turmas
 GET {{baseUrl}}/api/turma/listar
+Authorization: Bearer {{authToken}}
 
 ### 2. Buscar Turma por ID
 GET {{baseUrl}}/api/turma/1
-
-###
-GET http://localhost:5268/api/aluno/teste-banco
 Authorization: Bearer {{authToken}}
-
 
 ### 3. Cadastrar Nova Turma
 POST {{baseUrl}}/api/turma/cadastrar
 Content-Type: application/json
+Authorization: Bearer {{authToken}}
 
 {
     "nome": "Turma D",
@@ -27,6 +27,7 @@ Content-Type: application/json
 ### 4. Atualizar Turma
 PUT {{baseUrl}}/api/turma/1
 Content-Type: application/json
+Authorization: Bearer {{authToken}}
 
 {
     "nome": "Turma A - Atualizada",
@@ -36,9 +37,263 @@ Content-Type: application/json
 
 ### 5. Excluir Turma
 DELETE {{baseUrl}}/api/turma/4
+Authorization: Bearer {{authToken}}
 
 ### 6. Listar Alunos de uma Turma
 GET {{baseUrl}}/api/turma/1/alunos
+Authorization: Bearer {{authToken}}
 
 ### 7. Listar Disciplinas de uma Turma
-GET {{baseUrl}}/api/turma/1/disciplinas 
+GET {{baseUrl}}/api/turma/1/disciplinas
+Authorization: Bearer {{authToken}}
+
+### 8. Teste de Cadastro sem Nome (deve falhar)
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "ano": "2024",
+    "serie": "5º Ano"
+}
+
+### 9. Teste de Cadastro sem Ano (deve falhar)
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma sem Ano",
+    "serie": "5º Ano"
+}
+
+### 10. Teste de Cadastro sem Série (deve falhar)
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma sem Série",
+    "ano": "2024"
+}
+
+### 11. Teste de Cadastro com Nome Vazio (deve falhar)
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "",
+    "ano": "2024",
+    "serie": "5º Ano"
+}
+
+### 12. Teste de Cadastro com Ano Vazio (deve falhar)
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma Ano Vazio",
+    "ano": "",
+    "serie": "5º Ano"
+}
+
+### 13. Teste de Cadastro com Série Vazia (deve falhar)
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma Série Vazia",
+    "ano": "2024",
+    "serie": ""
+}
+
+### 14. Teste de Atualização de Turma Inexistente (deve falhar)
+PUT {{baseUrl}}/api/turma/999
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma Inexistente",
+    "ano": "2024",
+    "serie": "5º Ano"
+}
+
+### 15. Teste de Exclusão de Turma Inexistente (deve falhar)
+DELETE {{baseUrl}}/api/turma/999
+Authorization: Bearer {{authToken}}
+
+### 16. Teste de Busca de Turma Inexistente (deve falhar)
+GET {{baseUrl}}/api/turma/999
+Authorization: Bearer {{authToken}}
+
+### 17. Teste de Listagem de Alunos de Turma Inexistente
+GET {{baseUrl}}/api/turma/999/alunos
+Authorization: Bearer {{authToken}}
+
+### 18. Teste de Listagem de Disciplinas de Turma Inexistente
+GET {{baseUrl}}/api/turma/999/disciplinas
+Authorization: Bearer {{authToken}}
+
+### 19. Cadastrar Múltiplas Turmas
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma E",
+    "ano": "2024",
+    "serie": "5º Ano"
+}
+
+###
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma F",
+    "ano": "2024",
+    "serie": "6º Ano"
+}
+
+###
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma G",
+    "ano": "2025",
+    "serie": "1º Ano"
+}
+
+### 20. Teste de Cadastro com Nome Duplicado (deve falhar se houver validação)
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma A",
+    "ano": "2024",
+    "serie": "1º Ano"
+}
+
+### 21. Teste de Cadastro com Ano Inválido (deve falhar se houver validação)
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma Ano Inválido",
+    "ano": "ano-invalido",
+    "serie": "5º Ano"
+}
+
+### 22. Teste de Cadastro com Série Inválida (deve falhar se houver validação)
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma Série Inválida",
+    "ano": "2024",
+    "serie": "999º Ano"
+}
+
+### 23. Teste de Atualização com Dados Inválidos (deve falhar)
+PUT {{baseUrl}}/api/turma/1
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "",
+    "ano": "2024",
+    "serie": "1º Ano"
+}
+
+### 24. Teste de Cadastro sem Authorization (deve falhar)
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+
+{
+    "nome": "Turma sem Auth",
+    "ano": "2024",
+    "serie": "5º Ano"
+}
+
+### 25. Teste de Listagem sem Authorization (deve falhar)
+GET {{baseUrl}}/api/turma/listar
+
+### 26. Verificar Lista de Turmas Após Cadastros
+GET {{baseUrl}}/api/turma/listar
+Authorization: Bearer {{authToken}}
+
+### 27. Teste de Cadastro com Nome Muito Longo
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma com Nome Muito Longo que Pode Causar Problemas na Validação do Banco de Dados",
+    "ano": "2024",
+    "serie": "5º Ano"
+}
+
+### 28. Teste de Cadastro com Caracteres Especiais no Nome
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma A-B & C",
+    "ano": "2024",
+    "serie": "5º Ano"
+}
+
+### 29. Teste de Cadastro com Ano Muito Antigo
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma Ano Antigo",
+    "ano": "1990",
+    "serie": "5º Ano"
+}
+
+### 30. Teste de Cadastro com Ano Futuro
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Turma Ano Futuro",
+    "ano": "2030",
+    "serie": "5º Ano"
+}
+
+### 31. Teste de Cadastro com Dados Mínimos
+POST {{baseUrl}}/api/turma/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Min",
+    "ano": "2024",
+    "serie": "1º"
+}
+
+### 32. Verificar Relacionamentos de Turma (Alunos e Disciplinas)
+GET {{baseUrl}}/api/turma/1
+Authorization: Bearer {{authToken}}
+
+### 33. Teste de Exclusão de Turma com Alunos (deve falhar se houver validação)
+DELETE {{baseUrl}}/api/turma/1
+Authorization: Bearer {{authToken}}
+
+### 34. Teste de Exclusão de Turma com Disciplinas (deve falhar se houver validação)
+DELETE {{baseUrl}}/api/turma/2
+Authorization: Bearer {{authToken}} 

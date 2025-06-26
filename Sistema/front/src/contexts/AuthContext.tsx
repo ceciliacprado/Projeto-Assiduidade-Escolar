@@ -66,9 +66,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Tentar diferentes formas de acessar as claims
       const userInfo = {
-        email: decoded.name || decoded.email || (decoded as DecodedToken & { email?: string }).email || '',
-        role: decoded.role || (decoded as DecodedToken & { role?: string }).role || 'user',
-        nome: decoded.nome || (decoded as DecodedToken & { nome?: string }).nome || ''
+        email: decoded.name || decoded.email || (decoded as any).email || '',
+        role: decoded.role || (decoded as any).role || 'user',
+        nome: decoded.nome || (decoded as any).nome || ''
       };
       
       console.log('UserInfo criado:', userInfo);

@@ -1,18 +1,22 @@
 @baseUrl = http://localhost:5268
 @authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZXNjb2xhLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibm9tZSI6IkFkbWluaXN0cmFkb3IiLCJlbWFpbCI6ImFkbWluQGVzY29sYS5jb20iLCJleHAiOjE3NTA5Nzk1Nzh9.SWs01gj3sjkOgfi7YsafuJeeS0FalEd5kvhp4inaT4E
 
-### Testes da API de Alunos
+### ========================================
+### TESTES DA API DE ALUNOS
+### ========================================
 
 ### 1. Listar Todos os Alunos
-GET http://localhost:5268/api/aluno/teste-banco
+GET {{baseUrl}}/api/aluno/listar
 Authorization: Bearer {{authToken}}
 
 ### 2. Buscar Aluno por ID
 GET {{baseUrl}}/api/aluno/1
+Authorization: Bearer {{authToken}}
 
 ### 3. Cadastrar Novo Aluno
 POST {{baseUrl}}/api/aluno/cadastrar
 Content-Type: application/json
+Authorization: Bearer {{authToken}}
 
 {
     "nome": "Lucas Mendes",
@@ -22,6 +26,7 @@ Content-Type: application/json
 ### 4. Atualizar Aluno
 PUT {{baseUrl}}/api/aluno/1
 Content-Type: application/json
+Authorization: Bearer {{authToken}}
 
 {
     "nome": "Ana Silva - Atualizada",
@@ -30,32 +35,131 @@ Content-Type: application/json
 
 ### 5. Excluir Aluno
 DELETE {{baseUrl}}/api/aluno/2
+Authorization: Bearer {{authToken}}
 
 ### 6. Listar Alunos por Turma
 GET {{baseUrl}}/api/aluno/turma/1
+Authorization: Bearer {{authToken}}
 
-### 7. Buscar Aluno por Nome
-GET {{baseUrl}}/api/aluno/nome/Ana
+### 7. Listar Alunos por Nome da Turma
+GET {{baseUrl}}/api/aluno/turma-nome/Turma A
+Authorization: Bearer {{authToken}}
 
-### 8. Cadastrar Aluno com Turma Inexistente (deve falhar)
+### 8. Teste de Cadastro com Turma Inexistente (deve falhar)
 POST {{baseUrl}}/api/aluno/cadastrar
 Content-Type: application/json
+Authorization: Bearer {{authToken}}
 
 {
     "nome": "Aluno Teste",
     "turmaId": 999
 }
 
-### 9. Verificar Relacionamentos do Aluno (Turma e Disciplinas)
-GET {{baseUrl}}/api/aluno/1/relacionamentos
-
-### 4. Vincular Aluno à Disciplina (requer role admin)
-POST {{baseUrl}}/api/aluno/vincular-disciplina
-Authorization: Bearer {{authToken}}
+### 9. Teste de Atualização com Turma Inexistente (deve falhar)
+PUT {{baseUrl}}/api/aluno/1
 Content-Type: application/json
+Authorization: Bearer {{authToken}}
 
 {
-    "alunoId": 4,
-    "disciplinaId": 1
+    "nome": "Aluno Teste",
+    "turmaId": 999
 }
+
+### 10. Teste de Atualização de Aluno Inexistente (deve falhar)
+PUT {{baseUrl}}/api/aluno/999
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Aluno Inexistente",
+    "turmaId": 1
+}
+
+### 11. Teste de Exclusão de Aluno Inexistente (deve falhar)
+DELETE {{baseUrl}}/api/aluno/999
+Authorization: Bearer {{authToken}}
+
+### 12. Teste de Busca de Aluno Inexistente (deve falhar)
+GET {{baseUrl}}/api/aluno/999
+Authorization: Bearer {{authToken}}
+
+### 13. Teste de Cadastro sem Nome (deve falhar)
+POST {{baseUrl}}/api/aluno/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "turmaId": 1
+}
+
+### 14. Teste de Cadastro com Nome Vazio (deve falhar)
+POST {{baseUrl}}/api/aluno/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "",
+    "turmaId": 1
+}
+
+### 15. Teste de Cadastro sem Turma (deve falhar)
+POST {{baseUrl}}/api/aluno/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Aluno sem Turma"
+}
+
+### 16. Teste de Listagem de Alunos por Turma Inexistente
+GET {{baseUrl}}/api/aluno/turma/999
+Authorization: Bearer {{authToken}}
+
+### 17. Teste de Listagem de Alunos por Nome de Turma Inexistente
+GET {{baseUrl}}/api/aluno/turma-nome/Turma Inexistente
+Authorization: Bearer {{authToken}}
+
+### 18. Teste de Cadastro de Múltiplos Alunos
+POST {{baseUrl}}/api/aluno/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Maria Santos",
+    "turmaId": 1
+}
+
+###
+POST {{baseUrl}}/api/aluno/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "João Oliveira",
+    "turmaId": 1
+}
+
+###
+POST {{baseUrl}}/api/aluno/cadastrar
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Pedro Costa",
+    "turmaId": 2
+}
+
+### 19. Teste de Mudança de Turma (deve criar novas frequências)
+PUT {{baseUrl}}/api/aluno/1
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "nome": "Ana Silva - Mudança de Turma",
+    "turmaId": 2
+}
+
+### 20. Verificar se Aluno foi Vinculado às Disciplinas da Nova Turma
+GET {{baseUrl}}/api/aluno/1
+Authorization: Bearer {{authToken}}
 

@@ -1,19 +1,21 @@
-@url_base = http://localhost:5268/api/frequencia
+@baseUrl = http://localhost:5268
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZXNjb2xhLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibm9tZSI6IkFkbWluaXN0cmFkb3IiLCJlbWFpbCI6ImFkbWluQGVzY29sYS5jb20iLCJleHAiOjE3NTA5Nzk1Nzh9.SWs01gj3sjkOgfi7YsafuJeeS0FalEd5kvhp4inaT4E
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZW1haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJleHAiOjE3NTAwMTczNzJ9.55K5xklCu0iVzeYW4zeD3kjQI1YMy28lP__DAFgO55o
-
-
-### Testes da API de Frequências
+### ========================================
+### TESTES DA API DE FREQUÊNCIAS
+### ========================================
 
 ### 1. Listar Todas as Frequências
-GET {{url_base}}/listar
+GET {{baseUrl}}/api/frequencia/listar
+Authorization: Bearer {{authToken}}
 
 ### 2. Buscar Frequência por ID
-GET {{url_base}}/1
+GET {{baseUrl}}/api/frequencia/1
+Authorization: Bearer {{authToken}}
 
-### 3. Registrar Frequência
-POST {{url_base}}/registrar
-Authorization: Bearer {{token}}
+### 3. Registrar Frequência Individual
+POST {{baseUrl}}/api/frequencia/registrar
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
@@ -24,8 +26,8 @@ Content-Type: application/json
 }
 
 ### 4. Atualizar Frequência
-PUT {{url_base}}/1
-Authorization: Bearer {{token}}
+PUT {{baseUrl}}/api/frequencia/1
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
@@ -36,32 +38,24 @@ Content-Type: application/json
 }
 
 ### 5. Excluir Frequência
-DELETE {{url_base}}/100
+DELETE {{baseUrl}}/api/frequencia/100
+Authorization: Bearer {{authToken}}
 
 ### 6. Listar Frequências por Aluno
-GET {{url_base}}/aluno/1
+GET {{baseUrl}}/api/frequencia/aluno/1
+Authorization: Bearer {{authToken}}
 
 ### 7. Listar Frequências por Disciplina
-GET {{url_base}}/disciplina/1
+GET {{baseUrl}}/api/frequencia/disciplina/1
+Authorization: Bearer {{authToken}}
 
 ### 8. Listar Frequências por Data
-GET {{url_base}}/data/2024-01-15
+GET {{baseUrl}}/api/frequencia/data/2024-01-15
+Authorization: Bearer {{authToken}}
 
-### 9. Relatório de Frequência por Aluno
-GET {{url_base}}/relatorio/aluno/1
-
-### 10. Relatório de Frequência por Turma
-GET {{url_base}}/relatorio/turma/1
-
-### 11. Relatório de Frequência por Disciplina
-GET {{url_base}}/relatorio/disciplina/1
-
-### 12. Relatório de Frequência por Período
-GET {{url_base}}/relatorio/periodo?dataInicio=2024-01-01&dataFim=2024-01-31
-
-### 13. Registrar Frequência em Lote
-POST {{url_base}}/registrar-lote
-Authorization: Bearer {{token}}
+### 9. Registrar Frequência em Lote
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
@@ -85,8 +79,217 @@ Content-Type: application/json
     ]
 }
 
-### 14. Estatísticas de Frequência
-GET {{url_base}}/estatisticas
+### 10. Teste de Registro de Frequência com Aluno Inexistente (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
 
-### 15. Alunos com Mais Faltas
-GET {{url_base}}/alunos-mais-faltas?limite=5
+{
+    "alunoId": 999,
+    "disciplinaId": 1,
+    "data": "2024-01-15",
+    "presente": true
+}
+
+### 11. Teste de Registro de Frequência com Disciplina Inexistente (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "alunoId": 1,
+    "disciplinaId": 999,
+    "data": "2024-01-15",
+    "presente": true
+}
+
+### 12. Teste de Registro de Frequência sem Data (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "alunoId": 1,
+    "disciplinaId": 1,
+    "presente": true
+}
+
+### 13. Teste de Registro de Frequência com Data Inválida (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "alunoId": 1,
+    "disciplinaId": 1,
+    "data": "data-invalida",
+    "presente": true
+}
+
+### 14. Teste de Atualização de Frequência Inexistente (deve falhar)
+PUT {{baseUrl}}/api/frequencia/999
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "alunoId": 1,
+    "disciplinaId": 1,
+    "data": "2024-01-15",
+    "presente": true
+}
+
+### 15. Teste de Exclusão de Frequência Inexistente (deve falhar)
+DELETE {{baseUrl}}/api/frequencia/999
+Authorization: Bearer {{authToken}}
+
+### 16. Teste de Busca de Frequência Inexistente (deve falhar)
+GET {{baseUrl}}/api/frequencia/999
+Authorization: Bearer {{authToken}}
+
+### 17. Teste de Listagem de Frequências por Aluno Inexistente
+GET {{baseUrl}}/api/frequencia/aluno/999
+Authorization: Bearer {{authToken}}
+
+### 18. Teste de Listagem de Frequências por Disciplina Inexistente
+GET {{baseUrl}}/api/frequencia/disciplina/999
+Authorization: Bearer {{authToken}}
+
+### 19. Teste de Listagem de Frequências por Data Inexistente
+GET {{baseUrl}}/api/frequencia/data/2024-13-45
+Authorization: Bearer {{authToken}}
+
+### 20. Registrar Múltiplas Frequências para Diferentes Datas
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "data": "2024-01-17",
+    "frequencias": [
+        {
+            "alunoId": 1,
+            "disciplinaId": 1,
+            "presente": true
+        },
+        {
+            "alunoId": 1,
+            "disciplinaId": 2,
+            "presente": false
+        },
+        {
+            "alunoId": 2,
+            "disciplinaId": 1,
+            "presente": true
+        },
+        {
+            "alunoId": 2,
+            "disciplinaId": 2,
+            "presente": true
+        }
+    ]
+}
+
+### 21. Teste de Registro em Lote com Dados Inválidos (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "data": "2024-01-18",
+    "frequencias": [
+        {
+            "alunoId": 999,
+            "disciplinaId": 1,
+            "presente": true
+        },
+        {
+            "alunoId": 1,
+            "disciplinaId": 999,
+            "presente": false
+        }
+    ]
+}
+
+### 22. Teste de Registro em Lote sem Data (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "frequencias": [
+        {
+            "alunoId": 1,
+            "disciplinaId": 1,
+            "presente": true
+        }
+    ]
+}
+
+### 23. Teste de Registro em Lote sem Frequências (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "data": "2024-01-19",
+    "frequencias": []
+}
+
+### 24. Verificar Frequências Registradas por Aluno
+GET {{baseUrl}}/api/frequencia/aluno/1
+Authorization: Bearer {{authToken}}
+
+### 25. Verificar Frequências Registradas por Disciplina
+GET {{baseUrl}}/api/frequencia/disciplina/1
+Authorization: Bearer {{authToken}}
+
+### 26. Verificar Frequências por Data Específica
+GET {{baseUrl}}/api/frequencia/data/2024-01-17
+Authorization: Bearer {{authToken}}
+
+### 27. Teste de Registro de Frequência Duplicada (mesmo aluno, disciplina e data)
+POST {{baseUrl}}/api/frequencia/registrar
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "alunoId": 1,
+    "disciplinaId": 1,
+    "data": "2024-01-15",
+    "presente": false
+}
+
+### 28. Teste de Registro de Frequência para Data Futura
+POST {{baseUrl}}/api/frequencia/registrar
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "alunoId": 1,
+    "disciplinaId": 1,
+    "data": "2025-12-31",
+    "presente": true
+}
+
+### 29. Teste de Registro de Frequência para Data Muito Antiga
+POST {{baseUrl}}/api/frequencia/registrar
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "alunoId": 1,
+    "disciplinaId": 1,
+    "data": "2020-01-01",
+    "presente": true
+}
+
+### 30. Teste de Registro de Frequência sem Authorization (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar
+Content-Type: application/json
+
+{
+    "alunoId": 1,
+    "disciplinaId": 1,
+    "data": "2024-01-20",
+    "presente": true
+}
