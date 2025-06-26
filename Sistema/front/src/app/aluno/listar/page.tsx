@@ -85,10 +85,17 @@ export default function AlunosPage() {
 
   const fetchAlunosPorTurma = async (turmaId: number) => {
     try {
+      console.log('Carregando alunos da turma:', turmaId);
       const alunosData = await alunoService.listarPorTurma(turmaId);
+      console.log('Alunos retornados:', alunosData);
       setAlunos(alunosData);
     } catch (err: unknown) {
-      console.error('Erro ao carregar alunos da turma:', err);
+      console.error('Erro detalhado ao carregar alunos da turma:', err);
+      console.error('Tipo do erro:', typeof err);
+      console.error('Mensagem do erro:', (err as Error).message);
+      if ((err as { response?: unknown }).response) {
+        console.error('Response do erro:', (err as { response?: unknown }).response);
+      }
       setError('Erro ao carregar alunos da turma');
     }
   };
@@ -147,10 +154,11 @@ export default function AlunosPage() {
     return turma?.nome || 'Turma não encontrada';
   };
 
-  const getDisciplinasCount = (aluno: Aluno) => {
-    return aluno.disciplinas?.length || 0;
+  const getDisciplinasCount = () => {
+    return 0; // Alunos não têm mais disciplinas diretamente
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleTurmaChange = (event: any) => {
     setSelectedTurmaId(event.target.value);
   };
@@ -258,7 +266,7 @@ export default function AlunosPage() {
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={`${getDisciplinasCount(aluno)} disciplinas`}
+                          label={`${getDisciplinasCount()} disciplinas`}
                           color="secondary"
                           size="small"
                         />

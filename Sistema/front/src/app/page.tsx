@@ -20,7 +20,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Chip,
   IconButton,
   Dialog,
@@ -30,28 +29,15 @@ import {
 } from '@mui/material';
 import {
   School as SchoolIcon,
-  Person as PersonIcon,
   Book as BookIcon,
-  Assessment as AssessmentIcon,
   Save as SaveIcon,
   CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
-  Schedule as ScheduleIcon,
-  Notifications as NotificationsIcon,
-  Email as EmailIcon,
-  AccountCircle as AccountCircleIcon
+  Cancel as CancelIcon
 } from '@mui/icons-material';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { Layout } from '../components/Layout';
-import { alunoService, professorService, disciplinaService, frequenciaService, turmaService } from '../services/api';
-import { Aluno, Disciplina, Frequencia, Turma } from '../types';
-
-interface DashboardStats {
-  totalAlunos: number;
-  totalProfessores: number;
-  totalDisciplinas: number;
-  totalFrequencias: number;
-}
+import { alunoService, disciplinaService, frequenciaService, turmaService } from '../services/api';
+import { Disciplina, Turma } from '../types';
 
 interface StudentAttendance {
   id: number;
@@ -60,9 +46,6 @@ interface StudentAttendance {
 }
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [alunos, setAlunos] = useState<Aluno[]>([]);
-  const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -71,36 +54,15 @@ export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [studentAttendance, setStudentAttendance] = useState<StudentAttendance[]>([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  
+  // Estados para dados filtrados
+  const [disciplinasFiltradas, setDisciplinasFiltradas] = useState<Disciplina[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [alunosData, professores, disciplinasData, frequencias, turmasData] = await Promise.all([
-          alunoService.listar(),
-          professorService.listar(),
-          disciplinaService.listar(),
-          frequenciaService.listar(),
-          turmaService.listar()
-        ]);
-
-        setAlunos(alunosData);
-        setDisciplinas(disciplinasData);
+        const turmasData = await turmaService.listar();
         setTurmas(turmasData);
-
-        // Inicializar lista de presença
-        const attendanceList = alunosData.map(aluno => ({
-          id: aluno.id || 0,
-          name: aluno.nome,
-          status: 'present' as const
-        }));
-        setStudentAttendance(attendanceList);
-
-        setStats({
-          totalAlunos: alunosData.length,
-          totalProfessores: professores.length,
-          totalDisciplinas: disciplinasData.length,
-          totalFrequencias: frequencias.length
-        });
       } catch (err: unknown) {
         console.error('Erro ao carregar dashboard:', err);
         setError('Erro ao carregar dados');
@@ -112,26 +74,48 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
-  // Filtrar disciplinas quando uma turma é selecionada
-  useEffect(() => {
-    if (selectedTurma) {
-      const disciplinasDaTurma = disciplinas.filter(d => d.turmaId === selectedTurma);
-      setDisciplinas(disciplinasDaTurma);
+  // Função para lidar com a mudança de turma
+  const handleTurmaChange = async (turmaId: number | '') => {
+    setSelectedTurma(turmaId);
+    setSelectedDisciplina(''); // Reset disciplina quando turma muda
+    setLoading(true);
+    
+    if (turmaId) {
+      try {
+        console.log('Carregando dados da turma:', turmaId);
+        
+        // Buscar alunos da turma usando o endpoint correto
+        const alunosDaTurma = await alunoService.listarPorTurma(turmaId);
+        console.log('Alunos da turma:', alunosDaTurma);
+        
+        // Buscar disciplinas da turma
+        const disciplinasDaTurma = await disciplinaService.listarPorTurma(turmaId);
+        console.log('Disciplinas da turma:', disciplinasDaTurma);
+        
+        // Definir disciplinas da turma
+        setDisciplinasFiltradas(disciplinasDaTurma);
+        
+        // Definir alunos da turma
+        setStudentAttendance(alunosDaTurma.map(aluno => ({
+          id: aluno.id || 0,
+          name: aluno.nome,
+          status: 'present' as const
+        })));
+        
+        setError(''); // Limpar erros anteriores
+      } catch (err) {
+        console.error('Erro ao carregar dados da turma:', err);
+        setError('Erro ao carregar dados da turma selecionada');
+        setDisciplinasFiltradas([]);
+        setStudentAttendance([]);
+      }
+    } else {
+      setDisciplinasFiltradas([]);
+      setStudentAttendance([]);
     }
-  }, [selectedTurma]);
-
-  // Filtrar alunos quando uma turma é selecionada
-  useEffect(() => {
-    if (selectedTurma) {
-      const alunosDaTurma = alunos.filter(a => a.turmaId === selectedTurma);
-      const attendanceList = alunosDaTurma.map(aluno => ({
-        id: aluno.id || 0,
-        name: aluno.nome,
-        status: 'present' as const
-      }));
-      setStudentAttendance(attendanceList);
-    }
-  }, [selectedTurma, alunos]);
+    
+    setLoading(false);
+  };
 
   const handleStatusChange = (studentId: number, newStatus: 'present' | 'absent' | 'late') => {
     setStudentAttendance(prev => 
@@ -149,6 +133,11 @@ export default function DashboardPage() {
       return;
     }
 
+    if (studentAttendance.length === 0) {
+      setError('Não há alunos para registrar frequência');
+      return;
+    }
+
     try {
       const frequencias = studentAttendance.map(student => ({
         alunoId: student.id,
@@ -159,12 +148,14 @@ export default function DashboardPage() {
 
       await frequenciaService.registrarLote(frequencias);
       setShowSuccessModal(true);
+      setError(''); // Limpar erros anteriores
     } catch (err) {
-      setError('Erro ao salvar frequências');
+      console.error('Erro ao salvar frequências:', err);
+      setError('Erro ao salvar frequências. Verifique se os dados estão corretos.');
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): 'success' | 'error' | 'warning' | 'default' => {
     switch (status) {
       case 'present':
         return 'success';
@@ -238,8 +229,11 @@ export default function DashboardPage() {
                   <Select
                     value={selectedTurma}
                     label="Turma"
-                    onChange={(e) => setSelectedTurma(e.target.value as number | '')}
+                    onChange={(e) => handleTurmaChange(e.target.value as number | '')}
                   >
+                    <MenuItem value="">
+                      <em>Selecione uma turma</em>
+                    </MenuItem>
                     {turmas.map((turma) => (
                       <MenuItem key={turma.id} value={turma.id}>
                         {turma.nome}
@@ -255,7 +249,10 @@ export default function DashboardPage() {
                     onChange={(e) => setSelectedDisciplina(e.target.value as number | '')}
                     disabled={!selectedTurma}
                   >
-                    {disciplinas.map((disciplina) => (
+                    <MenuItem value="">
+                      <em>Selecione uma disciplina</em>
+                    </MenuItem>
+                    {disciplinasFiltradas.map((disciplina) => (
                       <MenuItem key={disciplina.id} value={disciplina.id}>
                         {disciplina.nome}
                       </MenuItem>
@@ -270,6 +267,17 @@ export default function DashboardPage() {
                   InputLabelProps={{ shrink: true }}
                   sx={{ minWidth: { xs: '100%', md: 200 } }}
                 />
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    handleTurmaChange('');
+                    setSelectedDate(new Date().toISOString().split('T')[0]);
+                    setError('');
+                  }}
+                  sx={{ minWidth: { xs: '100%', md: 120 } }}
+                >
+                  Limpar
+                </Button>
               </Box>
             </CardContent>
           </Card>
@@ -344,49 +352,71 @@ export default function DashboardPage() {
                 Salvar
               </Button>
             </Box>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>N.</TableCell>
-                    <TableCell>Nome do Aluno</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Ações</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {studentAttendance.map((student, index) => (
-                    <TableRow key={student.id}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>{student.name}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={getStatusText(student.status)}
-                          color={getStatusColor(student.status) as any}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleStatusChange(student.id, 'present')}
-                          sx={{ bgcolor: 'success.light', color: 'white', mr: 1, '&:hover': { bgcolor: 'success.main' } }}
-                        >
-                          P
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleStatusChange(student.id, 'absent')}
-                          sx={{ bgcolor: 'error.light', color: 'white', mr: 1, '&:hover': { bgcolor: 'error.main' } }}
-                        >
-                          F
-                        </IconButton>
-                      </TableCell>
+            {!selectedTurma ? (
+              <Box sx={{ p: 4, textAlign: 'center' }}>
+                <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  Selecione uma turma para começar
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Escolha uma turma no filtro acima para visualizar a lista de alunos e realizar a chamada.
+                </Typography>
+              </Box>
+            ) : !selectedDisciplina ? (
+              <Box sx={{ p: 4, textAlign: 'center' }}>
+                <BookIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  Selecione uma disciplina
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Escolha uma disciplina para realizar a chamada dos alunos.
+                </Typography>
+              </Box>
+            ) : (
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>N.</TableCell>
+                      <TableCell>Nome do Aluno</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell>Ações</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {studentAttendance.map((student, index) => (
+                      <TableRow key={student.id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{student.name}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={getStatusText(student.status)}
+                            color={getStatusColor(student.status)}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleStatusChange(student.id, 'present')}
+                            sx={{ bgcolor: 'success.light', color: 'white', mr: 1, '&:hover': { bgcolor: 'success.main' } }}
+                          >
+                            P
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleStatusChange(student.id, 'absent')}
+                            sx={{ bgcolor: 'error.light', color: 'white', mr: 1, '&:hover': { bgcolor: 'error.main' } }}
+                          >
+                            F
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
           </Card>
 
           {/* Resumo */}
@@ -460,7 +490,15 @@ export default function DashboardPage() {
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setShowSuccessModal(false)} variant="contained">
+            <Button 
+              onClick={() => {
+                setShowSuccessModal(false);
+                // Resetar campos após salvar
+                handleTurmaChange('');
+                setSelectedDate(new Date().toISOString().split('T')[0]);
+              }} 
+              variant="contained"
+            >
               OK
             </Button>
           </DialogActions>

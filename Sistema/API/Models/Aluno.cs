@@ -18,9 +18,6 @@ public class Aluno
     public int TurmaId { get; set; }
     public Turma Turma { get; set; } = null!;
     
-    // Relacionamento many-to-many com Disciplinas através da Turma
-    public ICollection<Disciplina> Disciplinas { get; set; } = new List<Disciplina>();
-    
     // Relacionamento com Frequencias
     public ICollection<Frequencia> Frequencias { get; set; } = new List<Frequencia>();
 }

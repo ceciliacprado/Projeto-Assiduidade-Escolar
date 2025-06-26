@@ -4,6 +4,7 @@ using API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    partial class AppDataContextModelSnapshot : ModelSnapshot
+    [Migration("20250625231954_MigrationRefatorDashboard")]
+    partial class MigrationRefatorDashboard
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -199,6 +202,21 @@ namespace API.Migrations
                     b.ToTable("Turmas");
                 });
 
+            modelBuilder.Entity("AlunoDisciplina", b =>
+                {
+                    b.Property<int>("AlunosId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DisciplinasId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AlunosId", "DisciplinasId");
+
+                    b.HasIndex("DisciplinasId");
+
+                    b.ToTable("AlunoDisciplina", (string)null);
+                });
+
             modelBuilder.Entity("API.Models.Aluno", b =>
                 {
                     b.HasOne("API.Models.Turma", "Turma")
@@ -245,6 +263,21 @@ namespace API.Migrations
                     b.Navigation("Aluno");
 
                     b.Navigation("Disciplina");
+                });
+
+            modelBuilder.Entity("AlunoDisciplina", b =>
+                {
+                    b.HasOne("API.Models.Aluno", null)
+                        .WithMany()
+                        .HasForeignKey("AlunosId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.Disciplina", null)
+                        .WithMany()
+                        .HasForeignKey("DisciplinasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("API.Models.Aluno", b =>

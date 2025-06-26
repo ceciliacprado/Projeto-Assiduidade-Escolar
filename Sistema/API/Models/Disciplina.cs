@@ -33,9 +33,6 @@ namespace API.Models
         public int? ProfessorId { get; set; }
         public Professor? Professor { get; set; }
         
-        // Relacionamento many-to-many com Alunos
-        public ICollection<Aluno> Alunos { get; set; } = new List<Aluno>();
-        
         // Relacionamento com Frequencias
         public ICollection<Frequencia> Frequencias { get; set; } = new List<Frequencia>();
     }

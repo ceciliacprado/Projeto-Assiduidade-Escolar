@@ -1,5 +1,6 @@
 using API.Data;
 using API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Services;
 
@@ -123,7 +124,7 @@ public class DataInitializationService : IDataInitializationService
             
             foreach (var turma in turmas)
             {
-                alunos.AddRange(new List<Aluno>
+                var alunosDaTurma = new List<Aluno>
                 {
                     new Aluno
                     {
@@ -140,7 +141,9 @@ public class DataInitializationService : IDataInitializationService
                         Nome = $"Beatriz Costa - {turma.Nome}",
                         TurmaId = turma.Id
                     }
-                });
+                };
+                
+                alunos.AddRange(alunosDaTurma);
             }
 
             _context.Alunos.AddRange(alunos);

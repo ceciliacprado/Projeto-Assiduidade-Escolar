@@ -7,8 +7,7 @@ import {
   Professor, 
   Disciplina, 
   Frequencia,
-  Turma,
-  VincularDisciplinaRequest
+  Turma
 } from '../types';
 
 const api = axios.create({
@@ -31,7 +30,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (typeof window !== 'undefined' && error.response?.status === 401) {
+    if (typeof window !== 'undefined' && error.response?.status === 401) {  
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/professor/login';
@@ -56,6 +55,11 @@ export const turmaService = {
   },
   
   buscarPorId: async (id: number): Promise<Turma> => {
+    const response = await api.get<Turma>(`/turma/${id}`);
+    return response.data;
+  },
+  
+  buscarComAlunosEDisciplinas: async (id: number): Promise<Turma> => {
     const response = await api.get<Turma>(`/turma/${id}`);
     return response.data;
   },
@@ -87,12 +91,12 @@ export const alunoService = {
     return response.data;
   },
   
-  cadastrar: async (aluno: Omit<Aluno, 'id' | 'criadoEm' | 'turma' | 'disciplinas'>): Promise<Aluno> => {
+  cadastrar: async (aluno: Omit<Aluno, 'id' | 'criadoEm' | 'turma'>): Promise<Aluno> => {
     const response = await api.post<Aluno>('/aluno/cadastrar', aluno);
     return response.data;
   },
   
-  atualizar: async (id: number, aluno: Omit<Aluno, 'id' | 'criadoEm' | 'turma' | 'disciplinas'>): Promise<Aluno> => {
+  atualizar: async (id: number, aluno: Omit<Aluno, 'id' | 'criadoEm' | 'turma'>): Promise<Aluno> => {
     const response = await api.put<Aluno>(`/aluno/${id}`, aluno);
     return response.data;
   },
@@ -102,9 +106,19 @@ export const alunoService = {
   },
   
   listarPorTurma: async (turmaId: number): Promise<Aluno[]> => {
+    console.log('Chamando alunoService.listarPorTurma com turmaId:', turmaId);
     const response = await api.get<Aluno[]>(`/aluno/turma/${turmaId}`);
+    console.log('Resposta do alunoService.listarPorTurma:', response.data);
     return response.data;
-  }
+  },
+  
+  listarPorNomeTurma: async (nomeTurma: string): Promise<{ turma: { id: number; nome: string }; alunos: Aluno[] }> => {
+    console.log('Chamando alunoService.listarPorNomeTurma com nomeTurma:', nomeTurma);
+    const response = await api.get<{ turma: { id: number; nome: string }; alunos: Aluno[] }>(`/aluno/turma-nome/${nomeTurma}`);
+    console.log('Resposta do alunoService.listarPorNomeTurma:', response.data);
+    return response.data;
+  },
+  
 };
 
 // Serviços de Professor
@@ -190,6 +204,11 @@ export const frequenciaService = {
   
   listarPorData: async (data: string): Promise<Frequencia[]> => {
     const response = await api.get<Frequencia[]>(`/frequencia/data/${data}`);
+    return response.data;
+  },
+  
+  registrarLote: async (frequencias: Omit<Frequencia, 'id' | 'criadoEm' | 'aluno' | 'disciplina'>[]): Promise<{ mensagem: string }> => {
+    const response = await api.post<{ mensagem: string }>('/frequencia/registrar-lote', frequencias);
     return response.data;
   }
 };

@@ -2,6 +2,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace API.DTOs;
 
+public class AlunoDTO
+{
+    public int Id { get; set; }
+    public string Nome { get; set; } = string.Empty;
+    public DateTime CriadoEm { get; set; }
+    public int TurmaId { get; set; }
+    public TurmaDTO Turma { get; set; } = null!;
+}
+
+public class TurmaDTO
+{
+    public int Id { get; set; }
+    public string Nome { get; set; } = string.Empty;
+    public string Ano { get; set; } = string.Empty;
+    public string Serie { get; set; } = string.Empty;
+    public DateTime CriadoEm { get; set; }
+}
+
 public class CadastrarAlunoDTO
 {
     [Required(ErrorMessage = "Nome é obrigatório")]

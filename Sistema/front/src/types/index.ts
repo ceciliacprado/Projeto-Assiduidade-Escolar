@@ -18,6 +18,8 @@ export interface Turma {
   ano: string;
   serie: string;
   criadoEm?: string;
+  alunos?: Aluno[];
+  disciplinas?: Disciplina[];
 }
 
 export interface Aluno {
@@ -26,7 +28,6 @@ export interface Aluno {
   turmaId: number;
   turma?: Turma;
   criadoEm?: string;
-  disciplinas?: Disciplina[];
 }
 
 export interface Professor {

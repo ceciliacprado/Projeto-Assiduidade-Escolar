@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options =>
 {
     options.SuppressAsyncSuffixInActionNames = false;
+})
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.WriteIndented = true;
 });
 
 // Configuração para desabilitar validação automática de modelo
@@ -86,7 +93,6 @@ builder.Services.AddScoped<IFrequenciaRepository, FrequenciaRepository>();
 builder.Services.AddScoped<IDisciplinaRepository, DisciplinaRepository>();
 
 // Registro dos Services
-builder.Services.AddScoped<IAlunoService, AlunoService>();
 builder.Services.AddScoped<IDataInitializationService, DataInitializationService>();
 
 // Configuração da Autenticação JWT
