@@ -28,7 +28,7 @@ dotnet restore
 dotnet ef database update
 
 # Executar a API
-dotnet run dev
+dotnet run
 ```
 
 A API estará disponível em: `http://localhost:5268`
