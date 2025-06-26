@@ -39,7 +39,8 @@ import {
   Schedule as ScheduleIcon,
   Notifications as NotificationsIcon,
   Email as EmailIcon,
-  AccountCircle as AccountCircleIcon
+  AccountCircle as AccountCircleIcon,
+  Refresh as RefreshIcon
 } from '@mui/icons-material';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { Layout } from '../components/Layout';
@@ -65,6 +66,7 @@ export default function DashboardPage() {
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingTurma, setLoadingTurma] = useState(false);
   const [error, setError] = useState('');
   const [selectedTurma, setSelectedTurma] = useState<number | ''>('');
   const [selectedDisciplina, setSelectedDisciplina] = useState<number | ''>('');
@@ -79,28 +81,65 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [alunosData, professores, disciplinasData, frequencias, turmasData] = await Promise.all([
+        console.log('Iniciando carregamento do dashboard...');
+        setLoading(true);
+        setError('');
+
+        console.log('Carregando dados básicos...');
+        const [alunosData, professores, disciplinasData, turmasData] = await Promise.all([
           alunoService.listar(),
           professorService.listar(),
           disciplinaService.listar(),
-          frequenciaService.listar(),
           turmaService.listar()
         ]);
+
+        console.log('Dados básicos carregados:', {
+          alunos: alunosData.length,
+          professores: professores.length,
+          disciplinas: disciplinasData.length,
+          turmas: turmasData.length
+        });
 
         setAlunos(alunosData);
         setDisciplinas(disciplinasData);
         setTurmas(turmasData);
 
-        setStats({
-          totalAlunos: alunosData.length,
-          totalProfessores: professores.length,
-          totalDisciplinas: disciplinasData.length,
-          totalFrequencias: frequencias.length
-        });
+        // Tentar carregar frequências separadamente para evitar bloqueio
+        try {
+          console.log('Carregando frequências...');
+          
+          // Adicionar timeout para evitar loading infinito
+          const frequenciasPromise = frequenciaService.listar();
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout ao carregar frequências')), 5000)
+          );
+          
+          const frequencias = await Promise.race([frequenciasPromise, timeoutPromise]) as Frequencia[];
+          console.log('Frequências carregadas:', frequencias.length);
+          
+          setStats({
+            totalAlunos: alunosData.length,
+            totalProfessores: professores.length,
+            totalDisciplinas: disciplinasData.length,
+            totalFrequencias: frequencias.length
+          });
+        } catch (freqError) {
+          console.warn('Erro ao carregar frequências, continuando sem elas:', freqError);
+          setStats({
+            totalAlunos: alunosData.length,
+            totalProfessores: professores.length,
+            totalDisciplinas: disciplinasData.length,
+            totalFrequencias: 0
+          });
+        }
+
+        console.log('Dashboard carregado com sucesso');
       } catch (err: unknown) {
         console.error('Erro ao carregar dashboard:', err);
-        setError('Erro ao carregar dados');
+        const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar dados';
+        setError(`Erro ao carregar dados: ${errorMessage}`);
       } finally {
+        console.log('Finalizando carregamento do dashboard');
         setLoading(false);
       }
     };
@@ -110,9 +149,11 @@ export default function DashboardPage() {
 
   // Função para lidar com a mudança de turma
   const handleTurmaChange = async (turmaId: number | '') => {
+    console.log('handleTurmaChange chamado com turmaId:', turmaId);
     setSelectedTurma(turmaId);
     setSelectedDisciplina(''); // Reset disciplina quando turma muda
-    setLoading(true);
+    setLoadingTurma(true);
+    setError(''); // Limpar erros anteriores
     
     if (turmaId) {
       try {
@@ -140,21 +181,23 @@ export default function DashboardPage() {
         }));
         setStudentAttendance(attendanceList);
         
-        setError(''); // Limpar erros anteriores
+        console.log('Dados da turma carregados com sucesso');
       } catch (err) {
         console.error('Erro ao carregar dados da turma:', err);
-        setError('Erro ao carregar dados da turma selecionada');
+        const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+        setError(`Erro ao carregar dados da turma selecionada: ${errorMessage}`);
         setDisciplinasFiltradas([]);
         setAlunosFiltrados([]);
         setStudentAttendance([]);
       }
     } else {
+      console.log('Limpando dados da turma');
       setDisciplinasFiltradas([]);
       setAlunosFiltrados([]);
       setStudentAttendance([]);
     }
     
-    setLoading(false);
+    setLoadingTurma(false);
   };
 
   const handleStatusChange = (studentId: number, newStatus: 'present' | 'absent' | 'late') => {
@@ -234,6 +277,27 @@ export default function DashboardPage() {
         <Layout>
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
             <CircularProgress />
+          </Box>
+        </Layout>
+      </ProtectedRoute>
+    );
+  }
+
+  if (error && !stats) {
+    return (
+      <ProtectedRoute>
+        <Layout>
+          <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" minHeight="60vh">
+            <Alert severity="error" sx={{ mb: 3, maxWidth: 600 }}>
+              {error}
+            </Alert>
+            <Button 
+              variant="contained" 
+              onClick={() => window.location.reload()}
+              startIcon={<RefreshIcon />}
+            >
+              Tentar Novamente
+            </Button>
           </Box>
         </Layout>
       </ProtectedRoute>
@@ -400,6 +464,13 @@ export default function DashboardPage() {
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Escolha uma turma no filtro acima para visualizar a lista de alunos e realizar a chamada.
+                </Typography>
+              </Box>
+            ) : loadingTurma ? (
+              <Box sx={{ p: 4, textAlign: 'center' }}>
+                <CircularProgress sx={{ mb: 2 }} />
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  Carregando dados da turma...
                 </Typography>
               </Box>
             ) : !selectedDisciplina ? (
