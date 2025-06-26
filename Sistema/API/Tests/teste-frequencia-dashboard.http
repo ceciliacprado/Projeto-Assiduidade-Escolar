@@ -1,0 +1,210 @@
+@baseUrl = http://localhost:5268
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW5AZXNjb2xhLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibm9tZSI6IkFkbWluaXN0cmFkb3IiLCJlbWFpbCI6ImFkbWluQGVzY29sYS5jb20iLCJleHAiOjE3NTA5Nzk1Nzh9.SWs01gj3sjkOgfi7YsafuJeeS0FalEd5kvhp4inaT4E
+
+### ========================================
+### TESTE DO SISTEMA DE FREQUÊNCIA DO DASHBOARD
+### ========================================
+
+### 1. Verificar dados existentes antes do teste
+GET {{baseUrl}}/api/turma/listar
+Authorization: Bearer {{authToken}}
+
+### 2. Verificar alunos existentes
+GET {{baseUrl}}/api/aluno/listar
+Authorization: Bearer {{authToken}}
+
+### 3. Verificar disciplinas existentes
+GET {{baseUrl}}/api/disciplina/listar
+Authorization: Bearer {{authToken}}
+
+
+### 5. Teste 1: Registrar frequência em lote válida
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+[
+    {
+        "alunoId": 1,
+        "disciplinaId": 1,
+        "data": "2024-01-25",
+        "presente": true
+    },
+    {
+        "alunoId": 2,
+        "disciplinaId": 1,
+        "data": "2024-01-25",
+        "presente": false
+    },
+    {
+        "alunoId": 3,
+        "disciplinaId": 1,
+        "data": "2024-01-25",
+        "presente": true
+    }
+]
+
+### 6. Verificar se as frequências foram registradas
+GET {{baseUrl}}/api/frequencia/data/2024-01-25
+Authorization: Bearer {{authToken}}
+
+### 7. Teste 2: Tentar registrar frequência duplicada (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+[
+    {
+        "alunoId": 1,
+        "disciplinaId": 1,
+        "data": "2024-01-25",
+        "presente": false
+    }
+]
+
+### 8. Teste 3: Registrar frequência para data diferente
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+[
+    {
+        "alunoId": 1,
+        "disciplinaId": 1,
+        "data": "2024-01-26",
+        "presente": true
+    },
+    {
+        "alunoId": 2,
+        "disciplinaId": 1,
+        "data": "2024-01-26",
+        "presente": true
+    }
+]
+
+### 9. Teste 4: Registrar frequência para disciplina diferente
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+[
+    {
+        "alunoId": 1,
+        "disciplinaId": 2,
+        "data": "2024-01-25",
+        "presente": false
+    },
+    {
+        "alunoId": 2,
+        "disciplinaId": 2,
+        "data": "2024-01-25",
+        "presente": true
+    }
+]
+
+### 10. Verificar todas as frequências registradas
+GET {{baseUrl}}/api/frequencia/listar
+Authorization: Bearer {{authToken}}
+
+### 11. Teste 5: Tentar registrar com aluno inexistente (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+[
+    {
+        "alunoId": 999,
+        "disciplinaId": 1,
+        "data": "2024-01-25",
+        "presente": true
+    }
+]
+
+### 12. Teste 6: Tentar registrar com disciplina inexistente (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+[
+    {
+        "alunoId": 1,
+        "disciplinaId": 999,
+        "data": "2024-01-25",
+        "presente": true
+    }
+]
+
+### 13. Teste 7: Tentar registrar com dados inválidos (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+[
+    {
+        "alunoId": 0,
+        "disciplinaId": 1,
+        "data": "2024-01-25",
+        "presente": true
+    }
+]
+
+### 14. Teste 8: Lista vazia (deve falhar)
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+[]
+
+### 15. Teste 9: Verificar frequências por aluno
+GET {{baseUrl}}/api/frequencia/aluno/1
+Authorization: Bearer {{authToken}}
+
+### 16. Teste 10: Verificar frequências por disciplina
+GET {{baseUrl}}/api/frequencia/disciplina/1
+Authorization: Bearer {{authToken}}
+
+### 17. Teste 11: Simular cenário real do dashboard (múltiplos alunos, mesma disciplina, mesma data)
+POST {{baseUrl}}/api/frequencia/registrar-lote
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+[
+    {
+        "alunoId": 1,
+        "disciplinaId": 1,
+        "data": "2024-01-27",
+        "presente": true
+    },
+    {
+        "alunoId": 2,
+        "disciplinaId": 1,
+        "data": "2024-01-27",
+        "presente": false
+    },
+    {
+        "alunoId": 3,
+        "disciplinaId": 1,
+        "data": "2024-01-27",
+        "presente": true
+    },
+    {
+        "alunoId": 4,
+        "disciplinaId": 1,
+        "data": "2024-01-27",
+        "presente": true
+    },
+    {
+        "alunoId": 5,
+        "disciplinaId": 1,
+        "data": "2024-01-27",
+        "presente": false
+    }
+]
+
+### 18. Verificar resultado final
+GET {{baseUrl}}/api/frequencia/data/2024-01-27
+Authorization: Bearer {{authToken}}
+
+### 19. Resumo final - todas as frequências
+GET {{baseUrl}}/api/frequencia/listar
+Authorization: Bearer {{authToken}} 

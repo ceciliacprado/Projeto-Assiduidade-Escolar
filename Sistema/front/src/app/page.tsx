@@ -222,6 +222,14 @@ export default function DashboardPage() {
     }
 
     try {
+      console.log('Iniciando registro de frequências...');
+      console.log('Dados selecionados:', {
+        turmaId: selectedTurma,
+        disciplinaId: selectedDisciplina,
+        data: selectedDate,
+        totalAlunos: studentAttendance.length
+      });
+
       const frequencias = studentAttendance.map(student => ({
         alunoId: student.id,
         disciplinaId: selectedDisciplina as number,
@@ -229,12 +237,49 @@ export default function DashboardPage() {
         presente: student.status === 'present'
       }));
 
-      await frequenciaService.registrarLote(frequencias);
+      console.log('Frequências a serem registradas:', frequencias);
+
+      const resultado = await frequenciaService.registrarLote(frequencias);
+      console.log('Resultado do registro:', resultado);
+
       setShowSuccessModal(true);
       setError(''); // Limpar erros anteriores
+      
+      // Log de sucesso
+      console.log('✅ Frequências registradas com sucesso!');
+      console.log('📊 Resumo:', {
+        totalRegistros: frequencias.length,
+        presentes: frequencias.filter(f => f.presente).length,
+        ausentes: frequencias.filter(f => !f.presente).length,
+        data: selectedDate
+      });
     } catch (err) {
-      console.error('Erro ao salvar frequências:', err);
-      setError('Erro ao salvar frequências. Verifique se os dados estão corretos.');
+      console.error('❌ Erro ao salvar frequências:', err);
+      
+      // Log detalhado do erro
+      if (err instanceof Error) {
+        console.error('Mensagem de erro:', err.message);
+        console.error('Stack trace:', err.stack);
+      }
+      
+      // Verificar se é erro de rede
+      if (err && typeof err === 'object' && 'response' in err) {
+        const response = (err as any).response;
+        console.error('Status da resposta:', response?.status);
+        console.error('Dados da resposta:', response?.data);
+        
+        if (response?.status === 400) {
+          setError(`Erro de validação: ${response.data?.mensagem || 'Dados inválidos'}`);
+        } else if (response?.status === 401) {
+          setError('Sessão expirada. Faça login novamente.');
+        } else if (response?.status === 500) {
+          setError('Erro interno do servidor. Tente novamente.');
+        } else {
+          setError(`Erro ${response?.status}: ${response.data?.mensagem || 'Erro desconhecido'}`);
+        }
+      } else {
+        setError('Erro ao salvar frequências. Verifique se os dados estão corretos.');
+      }
     }
   };
 
